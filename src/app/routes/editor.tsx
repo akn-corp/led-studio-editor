@@ -1,15 +1,27 @@
-import { Button } from '@/components/ui/button'
-import { useState } from 'react'
 import { useParams } from 'react-router'
+import { EditorCanvas } from '@/components/editor/canvas/editor-canvas'
+import { EditorInspector } from '@/components/editor/inspector/editor-inspector'
+import { EditorNavbar } from '@/components/editor/navbar/editor-navbar'
+import { EditorSidebar } from '@/components/editor/sidebar/editor-sidebar'
+import { EditorTimeline } from '@/components/editor/timeline/editor-timeline'
 
 function Editor() {
   const { projectId } = useParams<{ projectId: string }>()
-  const [count, setCount] = useState(0)
+  // TODO: wire to real selection state — inspector opens once an element is selected
+  const isInspectorOpen = false
 
   return (
-    <div className="flex h-screen w-screen flex-col items-center justify-center gap-4">
-      <h1 className="text-2xl font-semibold">Editor — {projectId}</h1>
-      <Button onClick={() => setCount((c) => c + 1)}>Count is {count}</Button>
+    <div className="relative h-screen w-screen overflow-hidden">
+      <div className="flex h-full w-full">
+        <EditorSidebar />
+        <div className="relative flex-1 overflow-hidden">
+          <EditorCanvas />
+          <EditorTimeline />
+        </div>
+        {isInspectorOpen && <EditorInspector />}
+      </div>
+
+      <EditorNavbar projectId={projectId} />
     </div>
   )
 }
