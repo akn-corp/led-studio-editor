@@ -1,0 +1,25 @@
+{
+  $schema: 'https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json',
+  appId: 'com.ledEditor.app',
+  productName: 'LED Editor',
+  asar: true,
+  directories: {
+    output: 'release/${version}',
+  },
+  files: ['dist/**/*', 'dist-electron/**/*'],
+  mac: {
+    target: [{ target: 'dmg', arch: ['universal'] }],
+    category: 'public.app-category.video',
+  },
+  win: {
+    target: [{ target: 'nsis', arch: ['x64'] }],
+  },
+  nsis: {
+    oneClick: false,
+    allowToChangeInstallationDirectory: true,
+  },
+  linux: {
+    target: ['AppImage'],
+    category: 'AudioVideo',
+  },
+}
