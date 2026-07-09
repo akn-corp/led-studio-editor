@@ -8,15 +8,24 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import { BUTTON_SCALE_STEP, ZOOM_PRESETS } from '@/renderer/constants'
+import { useViewport } from '@/state/use-viewport'
 import { ChevronDown, ZoomIn, ZoomOut } from 'lucide-react'
 
 function ZoomControl() {
+  const { scale, zoomTo, fitToContent } = useViewport()
+
   return (
     <ButtonGroup>
       <Tooltip>
         <TooltipTrigger
           render={
-            <Button variant="outline" size="icon" aria-label="Zoom out">
+            <Button
+              variant="outline"
+              size="icon"
+              aria-label="Zoom out"
+              onClick={() => zoomTo(scale / BUTTON_SCALE_STEP)}
+            >
               <ZoomOut />
             </Button>
           }
@@ -28,27 +37,34 @@ function ZoomControl() {
         <DropdownMenuTrigger
           render={
             <Button variant="outline">
-              50%
+              {Math.round(scale * 100)}%
               <ChevronDown />
             </Button>
           }
         />
-        <DropdownMenuContent align="center">
-          <DropdownMenuItem>Auto-Fit Page</DropdownMenuItem>
+        <DropdownMenuContent
+          align="center"
+          className="rounded-2xl border border-border/50 bg-background/50 shadow-lg"
+        >
+          <DropdownMenuItem onClick={() => fitToContent()}>Fit Page</DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem>Fit Page</DropdownMenuItem>
-          <DropdownMenuItem disabled>Fit Selection</DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem>200% Zoom</DropdownMenuItem>
-          <DropdownMenuItem>100% Zoom</DropdownMenuItem>
-          <DropdownMenuItem>50% Zoom</DropdownMenuItem>
+          {ZOOM_PRESETS.map((preset) => (
+            <DropdownMenuItem key={preset} onClick={() => zoomTo(preset)}>
+              {preset * 100}% Zoom
+            </DropdownMenuItem>
+          ))}
         </DropdownMenuContent>
       </DropdownMenu>
 
       <Tooltip>
         <TooltipTrigger
           render={
-            <Button variant="outline" size="icon" aria-label="Zoom in">
+            <Button
+              variant="outline"
+              size="icon"
+              aria-label="Zoom in"
+              onClick={() => zoomTo(scale * BUTTON_SCALE_STEP)}
+            >
               <ZoomIn />
             </Button>
           }

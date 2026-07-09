@@ -1,39 +1,53 @@
+import { createHistoryManager } from '@/engine/commands/history-manager'
+import { ResizeEnvironmentCommand } from '@/engine/commands/resize-environment-command'
+import { createEventBus } from '@/engine/events/event-bus'
 import { DEFAULT_ENVIRONMENT, type Environment } from '@/engine/model/environment'
 import type { Project } from '@/engine/model/project'
-
-type Listener = () => void
 
 function createDefaultProject(): Project {
   return {
     id: 'demo-project',
     name: 'Untitled Project',
     environment: { ...DEFAULT_ENVIRONMENT },
+    elements: [],
   }
 }
 
 function createSceneStore() {
   let project = createDefaultProject()
-  const listeners = new Set<Listener>()
+  let selectedElementId: string | null = null
+  const events = createEventBus()
 
-  const emitChange = () => {
-    listeners.forEach((listener) => listener())
-  }
+  const history = createHistoryManager({
+    getProject: () => project,
+    setProject: (next) => {
+      project = next
+      events.emitSceneChanged()
+    },
+  })
 
   return {
     getProject: () => project,
-    subscribe: (listener: Listener) => {
-      listeners.add(listener)
-      return () => listeners.delete(listener)
+    onSceneChanged: events.onSceneChanged,
+
+    getSelectedElementId: () => selectedElementId,
+    onSelectionChanged: events.onSelectionChanged,
+    setSelectedElementId: (id: string | null) => {
+      selectedElementId = id
+      events.emitSelectionChanged(id)
     },
+
     setEnvironment: (environment: Partial<Environment>) => {
-      project = { ...project, environment: { ...project.environment, ...environment } }
-      emitChange()
+      history.execute(new ResizeEnvironmentCommand(environment))
     },
+
+    undo: history.undo,
+    redo: history.redo,
+    canUndo: history.canUndo,
+    canRedo: history.canRedo,
   }
 }
 
-// Direct mutation for now — Phase 2 replaces this with Command/HistoryManager
-// so environment/element edits become undoable.
 const sceneStore = createSceneStore()
 
 export { sceneStore }

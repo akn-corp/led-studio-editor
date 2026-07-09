@@ -1,18 +1,16 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import type Konva from 'konva'
 import { Layer, Rect, Shape, Stage } from 'react-konva'
 import {
   LED_COLOR,
   MAX_CELL_SIZE,
-  MAX_SCALE,
   MIN_CELL_SIZE,
-  MIN_SCALE,
-  SCALE_STEP,
   SELECTION_COLOR,
-  VIEWPORT_PADDING,
 } from '@/renderer/environment/constants'
+import { VIEWPORT_PADDING, WHEEL_SCALE_STEP } from '@/renderer/constants'
 import { clamp } from '@/lib/utils'
 import { useScene } from '@/state/use-scene'
+import { useViewport } from '@/state/use-viewport'
 
 function EnvironmentGrid({
   onWallClick,
@@ -23,14 +21,12 @@ function EnvironmentGrid({
 }) {
   const { environment } = useScene()
   const { rows, columns } = environment
+  const { scale, position, size, setSize, setContentSize, setPosition, zoomTo } = useViewport()
 
   const containerRef = useRef<HTMLDivElement>(null)
   const hasCentered = useRef(false)
-  const [size, setSize] = useState({ width: 0, height: 0 })
-  const [scale, setScale] = useState(1)
-  const [position, setPosition] = useState({ x: 0, y: 0 })
 
-  // Denser grids get tighter spacing automatically so a 128x128 wall still
+  // Denser grids get tighter spacing automatically
   // fits on screen without forcing the user to zoom out first.
   const cellSize =
     size.width > 0 && size.height > 0
@@ -57,7 +53,7 @@ function EnvironmentGrid({
     })
     observer.observe(container)
     return () => observer.disconnect()
-  }, [])
+  }, [setSize])
 
   useEffect(() => {
     if (hasCentered.current || size.width === 0 || size.height === 0) return
@@ -66,31 +62,20 @@ function EnvironmentGrid({
       y: (size.height - gridHeight) / 2,
     })
     hasCentered.current = true
-  }, [size, gridWidth, gridHeight])
+  }, [size, gridWidth, gridHeight, setPosition])
+
+  // Publish content bounds so the navbar's "Fit Page" can fit them without
+  useEffect(() => {
+    setContentSize({ width: gridWidth, height: gridHeight })
+  }, [gridWidth, gridHeight, setContentSize])
 
   const handleWheel = (e: Konva.KonvaEventObject<WheelEvent>) => {
     e.evt.preventDefault()
-    const stage = e.target.getStage()
-    const pointer = stage?.getPointerPosition()
-    if (!stage || !pointer) return
-
-    const pointTo = {
-      x: (pointer.x - position.x) / scale,
-      y: (pointer.y - position.y) / scale,
-    }
+    const pointer = e.target.getStage()?.getPointerPosition()
+    if (!pointer) return
 
     const zoomingIn = e.evt.deltaY < 0
-    const nextScale = clamp(
-      zoomingIn ? scale * SCALE_STEP : scale / SCALE_STEP,
-      MIN_SCALE,
-      MAX_SCALE,
-    )
-
-    setScale(nextScale)
-    setPosition({
-      x: pointer.x - pointTo.x * nextScale,
-      y: pointer.y - pointTo.y * nextScale,
-    })
+    zoomTo(zoomingIn ? scale * WHEEL_SCALE_STEP : scale / WHEEL_SCALE_STEP, pointer)
   }
 
   const handleDragEnd = (e: Konva.KonvaEventObject<DragEvent>) => {
@@ -111,8 +96,6 @@ function EnvironmentGrid({
         onDragEnd={handleDragEnd}
         onClick={onWallClick}
       >
-        {/* One draw call for every LED instead of one Konva node each — the
-            node-per-LED approach got slow well before 128x128 (16k+ nodes). */}
         <Layer listening={false}>
           <Shape
             width={gridWidth}
