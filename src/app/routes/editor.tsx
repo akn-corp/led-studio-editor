@@ -11,16 +11,11 @@ function Editor() {
   const isInspectorOpen = false
 
   return (
-    <div className="relative h-screen w-screen overflow-hidden">
-      <div className="flex h-full w-full">
-        <EditorSidebar />
-        <div className="relative flex-1 overflow-hidden">
-          <EditorCanvas />
-          <EditorTimeline />
-        </div>
-        {isInspectorOpen && <EditorInspector />}
-      </div>
-
+    <div className="relative isolate h-screen w-screen overflow-hidden">
+      <EditorCanvas />
+      <EditorSidebar />
+      <EditorTimeline />
+      {isInspectorOpen && <EditorInspector />}
       <EditorNavbar projectId={projectId} />
     </div>
   )

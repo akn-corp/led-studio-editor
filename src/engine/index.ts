@@ -1,0 +1,4 @@
+export { sceneStore } from '@/engine/scene-store'
+export { DEFAULT_ENVIRONMENT, ENVIRONMENT_LIMITS } from '@/engine/model/environment'
+export type { Environment } from '@/engine/model/environment'
+export type { Project } from '@/engine/model/project'

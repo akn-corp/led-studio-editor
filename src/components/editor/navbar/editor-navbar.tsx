@@ -9,7 +9,7 @@ function EditorNavbar({ projectId }: { projectId?: string }) {
   const navigate = useNavigate()
 
   return (
-    <div className="absolute inset-x-0 top-0 z-20 grid grid-cols-3 h-12 border-b border-border/50 bg-background/70 px-3 shadow-lg ring-1 ring-foreground/5 backdrop-blur-xl backdrop-saturate-150 dark:ring-foreground/10">
+    <div className="absolute inset-x-0 top-0 z-20 grid grid-cols-3 h-12 border-b border-border/50 bg-background/60 px-3 shadow-lg ring-1 ring-foreground/5 backdrop-blur-xl backdrop-saturate-150 dark:ring-foreground/10">
       <div className="flex items-center gap-2">
         <Button variant="outline" onClick={() => navigate(paths.home.getHref())}>
           <ChevronLeft />

@@ -12,7 +12,7 @@ const sidebarItems = [
 
 function EditorSidebar() {
   return (
-    <div className="flex w-20 shrink-0 flex-col items-center gap-2 border-r border-border bg-background pt-18 pb-4">
+    <div className="absolute top-10 bottom-0 left-0 z-10 flex w-20 flex-col items-center gap-2 overflow-y-auto border border-border/50 bg-background/60 py-4 shadow-lg ring-1 ring-foreground/5 backdrop-blur-xl backdrop-saturate-150 dark:ring-foreground/10">
       {sidebarItems.map(({ label, icon: Icon }) => (
         <Button key={label} variant="ghost" className="h-auto w-16 flex-col gap-1 py-2">
           <Icon />
