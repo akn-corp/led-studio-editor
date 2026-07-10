@@ -8,8 +8,8 @@ interface BaseElement {
   opacity: number
 }
 
-export interface RectangleElement extends BaseElement {
-  type: 'rectangle'
+export interface SquareElement extends BaseElement {
+  type: 'square'
   fill: string
 }
 
@@ -20,4 +20,7 @@ export interface TextElement extends BaseElement {
   fill: string
 }
 
-export type Element = RectangleElement | TextElement
+export type Element = SquareElement | TextElement
+
+export type ElementChanges = Partial<Omit<SquareElement, 'id' | 'type'>> &
+  Partial<Omit<TextElement, 'id' | 'type'>>
