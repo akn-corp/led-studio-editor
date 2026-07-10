@@ -5,7 +5,8 @@ import { ResizeEnvironmentCommand } from '@/engine/commands/resize-environment-c
 import { UpdateElementCommand } from '@/engine/commands/update-element-command'
 import { createEventBus } from '@/engine/events/event-bus'
 import { DEFAULT_ENVIRONMENT, type Environment } from '@/engine/model/environment'
-import type { Element, ElementChanges } from '@/engine/model/element'
+import type { Element, ElementChanges, TextElement } from '@/engine/model/element'
+import { mergeTextElementChanges } from '@/engine/text-metrics'
 import type { Project } from '@/engine/model/project'
 
 const DUPLICATE_OFFSET = 0.5
@@ -51,6 +52,19 @@ function createSceneStore() {
     },
     updateElement: (elementId: string, changes: ElementChanges) => {
       history.execute(new UpdateElementCommand(elementId, changes))
+    },
+    /** Live update without history — used during drag/transform for real-time preview. */
+    patchElement: (elementId: string, changes: ElementChanges) => {
+      const elements = project.elements.map((element) => {
+        if (element.id !== elementId) return element
+        const merged =
+          element.type === 'text'
+            ? mergeTextElementChanges(element as TextElement, changes)
+            : changes
+        return { ...element, ...merged } as Element
+      })
+      project = { ...project, elements }
+      events.emitSceneChanged()
     },
     removeElement: (elementId: string) => {
       history.execute(new RemoveElementCommand(elementId))

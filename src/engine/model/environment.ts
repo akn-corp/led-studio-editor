@@ -5,8 +5,8 @@ export interface Environment {
 }
 
 export const DEFAULT_ENVIRONMENT: Environment = {
-  rows: 8,
-  columns: 8,
+  rows: 128,
+  columns: 128,
   isSetted: false,
 }
 

@@ -2,6 +2,7 @@ import { Copy, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ButtonGroup } from '@/components/ui/button-group'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import { useDisplayMode } from '@/state/use-display-mode'
 import { useScene } from '@/state/use-scene'
 import { useSelection } from '@/state/use-selection'
 import { useSelectionRect } from '@/state/use-selection-rect'
@@ -10,10 +11,11 @@ const TOOLBAR_GAP = 12
 
 function ElementActionToolbar() {
   const rect = useSelectionRect()
+  const { mode } = useDisplayMode()
   const { selectedElementId, select } = useSelection()
   const { duplicateElement, removeElement } = useScene()
 
-  if (!rect || !selectedElementId) return null
+  if (mode !== 'edit' || !rect || !selectedElementId) return null
 
   const handleDuplicate = () => {
     const newId = duplicateElement(selectedElementId)

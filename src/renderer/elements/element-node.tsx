@@ -6,20 +6,32 @@ import { TextNode } from '@/renderer/elements/text-node'
 interface ElementNodeProps {
   element: Element
   cellSize: number
+  showAuthoring: boolean
   onSelect: () => void
   onChange: (changes: ElementChanges) => void
+  onPatch: (changes: ElementChanges) => void
   registerNode: (node: Konva.Node | null) => void
 }
 
-function ElementNode({ element, cellSize, onSelect, onChange, registerNode }: ElementNodeProps) {
+function ElementNode({
+  element,
+  cellSize,
+  showAuthoring,
+  onSelect,
+  onChange,
+  onPatch,
+  registerNode,
+}: ElementNodeProps) {
   switch (element.type) {
     case 'square':
       return (
         <SquareNode
           element={element}
           cellSize={cellSize}
+          showAuthoring={showAuthoring}
           onSelect={onSelect}
           onChange={onChange}
+          onPatch={onPatch}
           registerNode={registerNode}
         />
       )
@@ -28,8 +40,10 @@ function ElementNode({ element, cellSize, onSelect, onChange, registerNode }: El
         <TextNode
           element={element}
           cellSize={cellSize}
+          showAuthoring={showAuthoring}
           onSelect={onSelect}
           onChange={onChange}
+          onPatch={onPatch}
           registerNode={registerNode}
         />
       )

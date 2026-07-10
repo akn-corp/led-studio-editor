@@ -2,7 +2,9 @@ import { useEffect, useRef, type ReactNode } from 'react'
 import type Konva from 'konva'
 import { Stage } from 'react-konva'
 import { WHEEL_SCALE_STEP } from '@/renderer/constants'
+import { useDisplayMode } from '@/state/use-display-mode'
 import { useViewport } from '@/state/use-viewport'
+import { cn } from '@/lib/utils'
 
 function CanvasStage({
   children,
@@ -12,6 +14,7 @@ function CanvasStage({
   onBackgroundClick?: () => void
 }) {
   const { scale, position, size, setSize, setPosition, zoomTo } = useViewport()
+  const { mode } = useDisplayMode()
   const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -46,7 +49,10 @@ function CanvasStage({
   }
 
   return (
-    <div ref={containerRef} className="size-full bg-neutral-800/50">
+    <div
+      ref={containerRef}
+      className={cn('size-full', mode === 'edit' ? 'bg-neutral-800/50' : 'bg-black')}
+    >
       <Stage
         width={size.width}
         height={size.height}

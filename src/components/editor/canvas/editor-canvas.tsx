@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useDroppable } from '@dnd-kit/react'
+import { DisplayModeToolbar } from '@/components/editor/canvas/display-mode-toolbar'
 import { ElementActionToolbar } from '@/components/editor/canvas/element-action-toolbar'
 import { EnvironmentControls } from '@/components/editor/canvas/environment-controls'
 import { CANVAS_DROPPABLE_ID } from '@/components/editor/canvas/use-canvas-drop'
@@ -32,6 +33,7 @@ function EditorCanvas() {
         <ElementsLayer />
       </CanvasStage>
       <ElementActionToolbar />
+      {environment.isSetted && <DisplayModeToolbar />}
       {isEnvironmentPanelOpen && environment.isSetted && <EnvironmentControls />}
     </div>
   )
