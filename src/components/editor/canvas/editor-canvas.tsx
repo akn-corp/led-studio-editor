@@ -7,9 +7,9 @@ import { CANVAS_DROPPABLE_ID } from '@/components/editor/canvas/use-canvas-drop'
 import { CanvasStage } from '@/renderer/canvas-stage'
 import { ElementsLayer } from '@/renderer/elements/elements-layer'
 import { EnvironmentGrid } from '@/renderer/environment/environment-grid'
+import { cn } from '@/lib/utils'
 import { useScene } from '@/state/use-scene'
 import { useSelection } from '@/state/use-selection'
-import { cn } from '@/lib/utils'
 
 function EditorCanvas() {
   const [isEnvironmentPanelOpen, setIsEnvironmentPanelOpen] = useState(false)

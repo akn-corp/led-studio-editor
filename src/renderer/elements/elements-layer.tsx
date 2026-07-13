@@ -85,30 +85,30 @@ function ElementsLayer() {
         )
       })}
       {showAuthoring && (
-      <Transformer
-        ref={transformerRef}
-        rotateEnabled
-        rotateLineVisible
-        rotateAnchorAngle={180}
-        rotateAnchorOffset={rotateOffset}
-        rotateAnchorCursor="grab"
-        enabledAnchors={[...TRANSFORMER_ANCHORS]}
-        anchorSize={handleSize}
-        anchorStroke="#ffffff"
-        anchorFill="#ffffff"
-        anchorCornerRadius={handleSize / 2}
-        borderStroke="#ffffff"
-        borderStrokeWidth={borderWidth}
-        boundBoxFunc={(oldBox, newBox) => {
-          const activeAnchor = transformerRef.current?.getActiveAnchor()
-          if (activeAnchor === 'rotater') return newBox
+        <Transformer
+          ref={transformerRef}
+          rotateEnabled
+          rotateLineVisible
+          rotateAnchorAngle={180}
+          rotateAnchorOffset={rotateOffset}
+          rotateAnchorCursor="grab"
+          enabledAnchors={[...TRANSFORMER_ANCHORS]}
+          anchorSize={handleSize}
+          anchorStroke="#ffffff"
+          anchorFill="#ffffff"
+          anchorCornerRadius={handleSize / 2}
+          borderStroke="#ffffff"
+          borderStrokeWidth={borderWidth}
+          boundBoxFunc={(oldBox, newBox) => {
+            const activeAnchor = transformerRef.current?.getActiveAnchor()
+            if (activeAnchor === 'rotater') return newBox
 
-          if (newBox.width < MIN_TRANSFORM_SIZE || newBox.height < MIN_TRANSFORM_SIZE) {
-            return oldBox
-          }
-          return newBox
-        }}
-      />
+            if (newBox.width < MIN_TRANSFORM_SIZE || newBox.height < MIN_TRANSFORM_SIZE) {
+              return oldBox
+            }
+            return newBox
+          }}
+        />
       )}
     </Layer>
   )
