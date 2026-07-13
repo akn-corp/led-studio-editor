@@ -10,6 +10,7 @@ function useScene() {
     setEnvironment: sceneStore.setEnvironment,
     addElement: sceneStore.addElement,
     updateElement: sceneStore.updateElement,
+    patchElement: sceneStore.patchElement,
     removeElement: sceneStore.removeElement,
     duplicateElement: sceneStore.duplicateElement,
     undo: sceneStore.undo,

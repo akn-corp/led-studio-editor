@@ -8,14 +8,18 @@ function createEventBus() {
   return {
     onSceneChanged: (listener: SceneChangedListener) => {
       sceneChangedListeners.add(listener)
-      return () => sceneChangedListeners.delete(listener)
+      return () => {
+        sceneChangedListeners.delete(listener)
+      }
     },
     emitSceneChanged: () => {
       sceneChangedListeners.forEach((listener) => listener())
     },
     onSelectionChanged: (listener: SelectionChangedListener) => {
       selectionChangedListeners.add(listener)
-      return () => selectionChangedListeners.delete(listener)
+      return () => {
+        selectionChangedListeners.delete(listener)
+      }
     },
     emitSelectionChanged: (selectedElementId: string | null) => {
       selectionChangedListeners.forEach((listener) => listener(selectedElementId))

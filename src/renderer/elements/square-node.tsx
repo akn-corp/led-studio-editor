@@ -1,27 +1,34 @@
+import { useRef } from 'react'
 import type Konva from 'konva'
 import { Rect } from 'react-konva'
 import type { ElementChanges, SquareElement } from '@/engine'
-import { roundTo } from '@/lib/utils'
-
-// The LED wall has no solid surface — only individual LEDs lighting up
-// (see ARCHITECTURE.md, "Handoff to the routing tool"). The square itself
-// is just a faint authoring guide for select/drag/resize; the actual color
-// is carried by the LED dots it covers, drawn by EnvironmentGrid.
-const GHOST_OPACITY = 0.2
+import { AUTHORING_GHOST_OPACITY } from '@/renderer/elements/authoring-constants'
+import {
+  commitTransformFromNode,
+  gridPositionFromNode,
+} from '@/renderer/elements/element-transform'
 
 function SquareNode({
   element,
   cellSize,
+  showAuthoring,
   onSelect,
   onChange,
+  onPatch,
   registerNode,
 }: {
   element: SquareElement
   cellSize: number
+  showAuthoring: boolean
   onSelect: () => void
   onChange: (changes: ElementChanges) => void
+  onPatch: (changes: ElementChanges) => void
   registerNode: (node: Konva.Node | null) => void
 }) {
+  const transformBaseRef = useRef({ width: element.width, height: element.height })
+
+  if (!showAuthoring) return null
+
   return (
     <Rect
       ref={registerNode}
@@ -30,7 +37,7 @@ function SquareNode({
       width={element.width * cellSize}
       height={element.height * cellSize}
       rotation={element.rotation}
-      opacity={GHOST_OPACITY}
+      opacity={AUTHORING_GHOST_OPACITY}
       fill={element.fill}
       stroke={element.fill}
       strokeWidth={1}
@@ -41,25 +48,17 @@ function SquareNode({
         onSelect()
       }}
       onDragStart={onSelect}
+      onDragMove={(e) => {
+        onPatch(gridPositionFromNode(e.target, cellSize))
+      }}
       onDragEnd={(e) => {
-        onChange({
-          x: roundTo(e.target.x() / cellSize),
-          y: roundTo(e.target.y() / cellSize),
-        })
+        onChange(gridPositionFromNode(e.target, cellSize))
+      }}
+      onTransformStart={() => {
+        transformBaseRef.current = { width: element.width, height: element.height }
       }}
       onTransformEnd={(e) => {
-        const node = e.target
-        const scaleX = node.scaleX()
-        const scaleY = node.scaleY()
-        node.scaleX(1)
-        node.scaleY(1)
-        onChange({
-          x: roundTo(node.x() / cellSize),
-          y: roundTo(node.y() / cellSize),
-          width: roundTo(element.width * scaleX),
-          height: roundTo(element.height * scaleY),
-          rotation: roundTo(node.rotation()),
-        })
+        onChange(commitTransformFromNode(e.target, cellSize, transformBaseRef.current))
       }}
     />
   )

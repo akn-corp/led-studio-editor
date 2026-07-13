@@ -1,5 +1,6 @@
 import { app, BrowserWindow } from 'electron'
 import path from 'node:path'
+import { setupPreviewIpc, teardownPreviewIpc } from './preview-ipc.js'
 
 const VITE_DEV_SERVER_URL = process.env.VITE_DEV_SERVER_URL
 
@@ -33,6 +34,7 @@ function createWindow() {
 }
 
 app.on('window-all-closed', () => {
+  teardownPreviewIpc()
   if (process.platform !== 'darwin') {
     app.quit()
   }
@@ -44,4 +46,7 @@ app.on('activate', () => {
   }
 })
 
-app.whenReady().then(createWindow)
+app.whenReady().then(() => {
+  setupPreviewIpc()
+  createWindow()
+})

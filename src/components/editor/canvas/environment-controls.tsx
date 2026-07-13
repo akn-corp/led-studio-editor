@@ -28,7 +28,7 @@ function EnvironmentControls() {
   }
 
   return (
-    <div className="absolute top-15 left-1/2 z-10 flex -translate-x-1/2 items-center gap-3 rounded-xl border border-border/50 bg-background/60 px-3 py-2 shadow-lg ring-1 ring-foreground/5 backdrop-blur-xl backdrop-saturate-150 dark:ring-foreground/10 text-xs">
+    <div className="absolute top-24 left-1/2 z-10 flex -translate-x-1/2 items-center gap-3 rounded-xl border border-border/50 bg-background/60 px-3 py-2 shadow-lg ring-1 ring-foreground/5 backdrop-blur-xl backdrop-saturate-150 dark:ring-foreground/10 text-xs">
       <div className="flex items-center gap-1.5">
         <span className="text-muted-foreground">Rows</span>
         <Input
