@@ -1,7 +1,16 @@
 #!/usr/bin/env node
 /**
- * Smoke test: encode LEDS frame and send to routing hub on :6455.
+ * Smoke test: encode a LEDS frame and send it to the routing hub on :6455.
  * Run: node scripts/test-udp-send.mjs
+ *
+ * Deliberately standalone (plain Node, zero project deps, no TS build step)
+ * so it stays a trivial "is anything listening" check even if the rest of
+ * the toolchain is broken. It re-implements the wire header/byte layout
+ * from src/routing/protocol.ts (keep the two in sync if that format
+ * changes) but its chunking is intentionally simpler — flat MAX-sized
+ * slices of a fixed 8×8 test grid, not the real band-boundary-aware
+ * chunking `encodeLedFrame` uses — since this only needs to prove packets
+ * arrive, not match production framing exactly.
  */
 import dgram from 'node:dgram'
 

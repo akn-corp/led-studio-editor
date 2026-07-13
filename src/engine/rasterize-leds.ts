@@ -1,15 +1,9 @@
-import { composeColorGrid, rgbToCss, type ColorGrid } from '@/engine/rasterize-scene'
-import { entityIdForCell } from '@/engine/wall-mapping'
-import type { Project } from '@/engine/model/project'
+import { rgbToCss, type ColorGrid } from '@/engine/rasterize-scene'
 
 export interface Rgb {
   r: number
   g: number
   b: number
-}
-
-export interface LedEntry extends Rgb {
-  entityId: number
 }
 
 export function hexToRgb(hex: string): Rgb {
@@ -30,40 +24,13 @@ export function hexToRgb(hex: string): Rgb {
   return { r: 0, g: 0, b: 0 }
 }
 
-/** RGB for UDP export — uncovered LEDs are off (black). */
-export function rasterizeLedFrame(project: Project): LedEntry[] {
-  const grid = composeColorGrid(project)
-  const { rows, columns } = project.environment
-  const entries: LedEntry[] = []
-
-  for (let row = 0; row < rows; row += 1) {
-    for (let column = 0; column < columns; column += 1) {
-      const entityId = entityIdForCell(row, column)
-      if (entityId == null) continue
-
-      const color = grid[row][column]
-      entries.push({
-        entityId,
-        r: color?.r ?? 0,
-        g: color?.g ?? 0,
-        b: color?.b ?? 0,
-      })
-    }
-  }
-
-  return entries
-}
-
-/** Fill + opacity for Konva preview (uncovered = default LED grey). */
+/** Fill color for Konva preview (uncovered = default LED grey). */
 export function getLedPreviewAppearance(
   row: number,
   column: number,
   offFill: string,
   grid: ColorGrid,
-): { fill: string; opacity: number } {
+): { fill: string } {
   const color = grid[row]?.[column]
-  if (color) {
-    return { fill: rgbToCss(color), opacity: 1 }
-  }
-  return { fill: offFill, opacity: 1 }
+  return { fill: color ? rgbToCss(color) : offFill }
 }

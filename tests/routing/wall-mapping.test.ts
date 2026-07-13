@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import { entityIdForCell } from '../src/engine/wall-mapping.ts'
+import { entityIdForCell } from '../../src/routing/wall-mapping.ts'
 
 test('maps the first visible column from top to bottom on the ascending strip', () => {
   expect(entityIdForCell(0, 0)).toBe(228)

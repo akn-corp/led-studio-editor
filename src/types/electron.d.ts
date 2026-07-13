@@ -1,13 +1,8 @@
+import type { LedEntry } from '@/routing'
+
 export interface PreviewStartOptions {
   host?: string
   port?: number
-}
-
-export interface LedEntry {
-  entityId: number
-  r: number
-  g: number
-  b: number
 }
 
 export interface StateFramePayload {

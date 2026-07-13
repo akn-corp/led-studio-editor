@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { createPlaybackLoop } from '@/engine/playback-loop'
-import { sceneStore } from '@/engine/scene-store'
+import { sceneStore } from '@/engine'
+import { createPlaybackLoop } from '@/routing'
 
 function isPreviewAvailable(): boolean {
   return typeof window !== 'undefined' && Boolean(window.electronAPI?.preview)

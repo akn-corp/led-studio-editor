@@ -65,6 +65,35 @@ function setGridCell(
   grid[row][column] = color
 }
 
+interface GlyphBlock {
+  blockX: number
+  blockY: number
+}
+
+/**
+ * Walks every lit pixel of a text string's glyphs, in unscaled/unrotated
+ * block-grid units (one unit = one font "pixel"). This is the single
+ * source of truth for the font's bit-layout + advance-width logic — the
+ * grid painter (below) and the on-canvas ghost-preview painter both plot
+ * these same blocks, just through different sinks (grid cells vs. canvas
+ * fillRect), so the preview can never silently drift from what actually
+ * lights up.
+ */
+function* walkGlyphBlocks(text: string): Generator<GlyphBlock> {
+  let penX = 0
+  for (const char of text) {
+    const glyph = glyphFor(char)
+    for (let row = 0; row < GLYPH_HEIGHT; row += 1) {
+      const rowBits = glyph[row] ?? 0
+      for (let col = 0; col < GLYPH_WIDTH; col += 1) {
+        if ((rowBits & (1 << (GLYPH_WIDTH - 1 - col))) === 0) continue
+        yield { blockX: penX + col, blockY: row }
+      }
+    }
+    penX += GLYPH_WIDTH + CHAR_SPACING
+  }
+}
+
 export function paintBitmapTextToGrid(
   grid: ColorGrid,
   rows: number,
@@ -80,28 +109,22 @@ export function paintBitmapTextToGrid(
   const rotationRad = (rotationDeg * Math.PI) / 180
   const cos = Math.cos(rotationRad)
   const sin = Math.sin(rotationRad)
-  const advance = (GLYPH_WIDTH + CHAR_SPACING) * blockScale
 
-  let penX = 0
-  for (const char of text) {
-    const glyph = glyphFor(char)
-    for (let row = 0; row < GLYPH_HEIGHT; row += 1) {
-      const rowBits = glyph[row] ?? 0
-      for (let col = 0; col < GLYPH_WIDTH; col += 1) {
-        if ((rowBits & (1 << (GLYPH_WIDTH - 1 - col))) === 0) continue
-
-        for (let dy = 0; dy < blockScale; dy += 1) {
-          for (let dx = 0; dx < blockScale; dx += 1) {
-            const localX = penX + col * blockScale + dx
-            const localY = row * blockScale + dy
-            const worldX = x + localX * cos - localY * sin
-            const worldY = y + localX * sin + localY * cos
-            setGridCell(grid, rows, columns, Math.floor(worldY), Math.floor(worldX), color)
-          }
-        }
+  for (const { blockX, blockY } of walkGlyphBlocks(text)) {
+    // Rotation is applied per output pixel (not via a single whole-text
+    // transform) because grid cells are discrete integer positions —
+    // each sub-pixel of a scaled block can land in a different rotated
+    // cell, unlike the canvas painter below which can lean on the
+    // canvas's own transform stack.
+    for (let dy = 0; dy < blockScale; dy += 1) {
+      for (let dx = 0; dx < blockScale; dx += 1) {
+        const localX = blockX * blockScale + dx
+        const localY = blockY * blockScale + dy
+        const worldX = x + localX * cos - localY * sin
+        const worldY = y + localX * sin + localY * cos
+        setGridCell(grid, rows, columns, Math.floor(worldY), Math.floor(worldX), color)
       }
     }
-    penX += advance
   }
 }
 
@@ -136,7 +159,6 @@ export function paintBitmapTextToContext(
   cellSize: number,
 ) {
   const blockScale = Math.max(1, Math.round(fontSize))
-  const advance = (GLYPH_WIDTH + CHAR_SPACING) * blockScale
 
   context.save()
   context.globalAlpha = opacity
@@ -148,22 +170,13 @@ export function paintBitmapTextToContext(
     context.rotate((rotationDeg * Math.PI) / 180)
   }
 
-  let penX = 0
-  for (const char of text) {
-    const glyph = glyphFor(char)
-    for (let row = 0; row < GLYPH_HEIGHT; row += 1) {
-      const rowBits = glyph[row] ?? 0
-      for (let col = 0; col < GLYPH_WIDTH; col += 1) {
-        if ((rowBits & (1 << (GLYPH_WIDTH - 1 - col))) === 0) continue
-        context.fillRect(
-          (penX + col * blockScale) * cellSize,
-          row * blockScale * cellSize,
-          blockScale * cellSize,
-          blockScale * cellSize,
-        )
-      }
-    }
-    penX += advance
+  for (const { blockX, blockY } of walkGlyphBlocks(text)) {
+    context.fillRect(
+      blockX * blockScale * cellSize,
+      blockY * blockScale * cellSize,
+      blockScale * cellSize,
+      blockScale * cellSize,
+    )
   }
 
   context.restore()

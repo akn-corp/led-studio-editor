@@ -1,5 +1,4 @@
-import type { LedEntry, Rgb } from '@/engine/rasterize-leds'
-import { getAllWallLedChunks } from '@/engine/wall-mapping'
+import { getAllWallLedChunks } from './wall-mapping.js'
 
 export const LED_MAGIC = 'LEDS'
 export const VERSION = 1
@@ -7,6 +6,23 @@ export const STATE_PORT = 6455
 export const LED_HEADER_SIZE = 13
 export const LED_ENTRY_SIZE = 3
 export const MAX_LED_ENTRIES_PER_CHUNK = 400
+
+// Structurally identical to engine's Rgb, defined locally rather than
+// imported: this file is reachable from the Electron main process (via
+// electron/protocol.ts's relative re-export), which type-checks under
+// stricter nodenext module resolution than the renderer build — pulling in
+// `@/engine`'s alias-based imports from there doesn't resolve. Structural
+// typing means this stays fully compatible with engine's Rgb values.
+export interface Rgb {
+  r: number
+  g: number
+  b: number
+}
+
+/** A resolved color addressed to a physical LED entity id on this wall's wiring. */
+export interface LedEntry extends Rgb {
+  entityId: number
+}
 
 export interface LedsChunkInput {
   frameId: number

@@ -1,9 +1,9 @@
-import { rasterizeLedFrame } from '@/engine/rasterize-leds'
-import type { Project } from '@/engine/model/project'
+import type { Project } from '@/engine'
+import { rasterizeWallFrame } from '@/routing/rasterize-wall-frame'
 
 export interface StateFrame {
   frameId: number
-  entries: ReturnType<typeof rasterizeLedFrame>
+  entries: ReturnType<typeof rasterizeWallFrame>
 }
 
 export interface PlaybackLoopOptions {
@@ -18,7 +18,7 @@ export function createPlaybackLoop(options: PlaybackLoopOptions) {
   let frameId = 0
 
   async function tick() {
-    const entries = rasterizeLedFrame(options.getProject())
+    const entries = rasterizeWallFrame(options.getProject())
     await options.sendFrame({ frameId, entries })
     frameId = (frameId + 1) % 65536
   }

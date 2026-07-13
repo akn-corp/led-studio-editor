@@ -1,7 +1,7 @@
 import type { Command } from '@/engine/commands/command'
-import type { Element, ElementChanges, TextElement } from '@/engine/model/element'
+import type { Element, ElementChanges } from '@/engine/model/element'
+import { resolveElementChanges } from '@/engine/model/element-changes'
 import type { Project } from '@/engine/model/project'
-import { mergeTextElementChanges } from '@/engine/text-metrics'
 
 class UpdateElementCommand implements Command {
   private readonly elementId: string
@@ -17,10 +17,7 @@ class UpdateElementCommand implements Command {
     const elements = project.elements.map((element) => {
       if (element.id !== this.elementId) return element
       this.previousElement = element
-      const changes =
-        element.type === 'text'
-          ? mergeTextElementChanges(element as TextElement, this.changes)
-          : this.changes
+      const changes = resolveElementChanges(element, this.changes)
       return { ...element, ...changes } as Element
     })
     return { ...project, elements }

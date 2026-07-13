@@ -1,4 +1,4 @@
-import wallBandsData from '@/config/wall-bands.json'
+import wallBandsData from './wall-bands.json' with { type: 'json' }
 
 export interface WallBand {
   column: number
