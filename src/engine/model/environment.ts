@@ -1,11 +1,14 @@
 export interface Environment {
   rows: number
   columns: number
+  isSetted: boolean
+  isSetted: boolean
 }
 
 export const DEFAULT_ENVIRONMENT: Environment = {
-  rows: 8,
-  columns: 8,
+  rows: 128,
+  columns: 128,
+  isSetted: false,
 }
 
 export const ENVIRONMENT_LIMITS = {

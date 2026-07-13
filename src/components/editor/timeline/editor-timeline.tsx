@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button'
 
 function EditorTimeline() {
   return (
-    <div className="absolute right-4 bottom-4 left-28 z-10 flex h-52 flex-col rounded-2xl border border-border/50 bg-background/60 shadow-lg ring-1 ring-foreground/5 backdrop-blur-xl backdrop-saturate-150 dark:ring-foreground/10">
+    <div className="pointer-events-auto absolute inset-x-0 bottom-0 flex h-52 flex-col rounded-2xl border border-border/50 bg-background/60 shadow-lg ring-1 ring-foreground/5 backdrop-blur-xl backdrop-saturate-150 dark:ring-foreground/10">
       <div className="flex items-center justify-between border-b border-border/50 px-4 py-2">
         <Button variant="ghost" size="icon" aria-label="Play">
           <Play />
