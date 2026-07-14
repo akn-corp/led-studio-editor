@@ -3,7 +3,13 @@ export { DEFAULT_ENVIRONMENT, ENVIRONMENT_LIMITS } from '@/engine/model/environm
 export type { Environment } from '@/engine/model/environment'
 export type { Project } from '@/engine/model/project'
 export type { AudioTrack } from '@/engine/model/audio'
-export type { Element, ElementChanges, SquareElement, TextElement } from '@/engine/model/element'
+export type {
+  Element,
+  ElementChanges,
+  ElementMeta,
+  SquareElement,
+  TextElement,
+} from '@/engine/model/element'
 export { createSquareElement, createTextElement } from '@/engine/model/element-factory'
 export { isPointInElement } from '@/engine/coverage'
 export { getLedPreviewAppearance, hexToRgb } from '@/engine/rasterize-leds'
@@ -25,3 +31,5 @@ export {
 } from '@/engine/timeline/keyframe-utils'
 export { DEFAULT_DURATION, getProjectDuration } from '@/engine/timeline/get-project-duration'
 export { playbackStore } from '@/engine/timeline/playback-store'
+export type { AnimationPreset, AnimationPresetId, PresetDelta } from '@/engine/animation-presets/types'
+export { getAnimationPreset, listAnimationPresets } from '@/engine/animation-presets/presets'

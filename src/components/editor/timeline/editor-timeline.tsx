@@ -105,6 +105,7 @@ function EditorTimeline() {
               <ElementTrackRow
                 key={element.id}
                 element={element}
+                allElements={project.elements}
                 duration={duration}
                 pixelsPerSecond={pixelsPerSecond}
               />

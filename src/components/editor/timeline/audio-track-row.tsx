@@ -8,7 +8,13 @@ import { trackWidthFor } from '@/components/editor/timeline/timeline-scale'
 
 // Waveform + play/pause, synced to the shared timeline clock (usePlayback,
 // via useAudioPlayback) and scaled to line up with the ruler/keyframe rows.
-function AudioTrackRow({ duration, pixelsPerSecond }: { duration: number; pixelsPerSecond: number }) {
+function AudioTrackRow({
+  duration,
+  pixelsPerSecond,
+}: {
+  duration: number
+  pixelsPerSecond: number
+}) {
   const { project } = useScene()
   const audio = project.audio
   const { peaks, isLoading } = useAudioWaveform(audio?.filePath ?? null)
@@ -20,6 +26,7 @@ function AudioTrackRow({ duration, pixelsPerSecond }: { duration: number; pixels
 
   return (
     <TimelineLaneRow
+      laneClassName="bg-amber-500"
       trackWidth={trackWidthFor(duration, pixelsPerSecond)}
       onLabelClick={toggle}
       label={
@@ -46,7 +53,7 @@ function AudioTrackRow({ duration, pixelsPerSecond }: { duration: number; pixels
           peaks.map((peak, index) => (
             <div
               key={index}
-              className="min-w-px flex-1 rounded-full bg-amber-500/70"
+              className="w-1 flex-1 rounded-full bg-white/50"
               style={{ height: `${Math.max(peak * 100, 4)}%` }}
             />
           ))

@@ -1,5 +1,6 @@
 import { expect, test } from 'vitest'
-import { resolveElementAtTime } from '@/engine/timeline/resolve-scene-at-time'
+import { resolveElementAtTime, resolveSceneAtTime } from '@/engine/timeline/resolve-scene-at-time'
+import type { Project } from '@/engine/model/project'
 import type { SquareElement } from '@/engine/model/element'
 
 function makeSquare(overrides: Partial<SquareElement> = {}): SquareElement {
@@ -14,7 +15,20 @@ function makeSquare(overrides: Partial<SquareElement> = {}): SquareElement {
     opacity: 1,
     fill: '#000000',
     keyframes: {},
+    startTime: 0,
+    duration: 10,
+    hidden: false,
     ...overrides,
+  }
+}
+
+function makeProject(elements: SquareElement[]): Project {
+  return {
+    id: 'p',
+    name: 'p',
+    environment: { rows: 16, columns: 16, isSetted: true },
+    elements,
+    audio: null,
   }
 }
 
@@ -84,4 +98,19 @@ test('unrelated properties are left untouched when only one track is animated', 
   const resolved = resolveElementAtTime(element, 1)
   expect(resolved.x).toBe(9)
   expect(resolved.y).toBe(7)
+})
+
+test('resolveSceneAtTime excludes elements outside their clip range', () => {
+  const clip = makeSquare({ startTime: 2, duration: 3 })
+  const project = makeProject([clip])
+  expect(resolveSceneAtTime(project, 1)).toHaveLength(0)
+  expect(resolveSceneAtTime(project, 2)).toHaveLength(1)
+  expect(resolveSceneAtTime(project, 5)).toHaveLength(1)
+  expect(resolveSceneAtTime(project, 5.01)).toHaveLength(0)
+})
+
+test('resolveSceneAtTime excludes hidden elements even inside their clip range', () => {
+  const clip = makeSquare({ startTime: 0, duration: 10, hidden: true })
+  const project = makeProject([clip])
+  expect(resolveSceneAtTime(project, 1)).toHaveLength(0)
 })

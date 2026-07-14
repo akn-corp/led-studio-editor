@@ -6,11 +6,12 @@ import { RemoveElementCommand } from '@/engine/commands/remove-element-command'
 import { RemoveKeyframeCommand } from '@/engine/commands/remove-keyframe-command'
 import { ResizeEnvironmentCommand } from '@/engine/commands/resize-environment-command'
 import { SetAudioCommand } from '@/engine/commands/set-audio-command'
+import { SetElementMetaCommand } from '@/engine/commands/set-element-meta-command'
 import { UpdateElementCommand } from '@/engine/commands/update-element-command'
 import { createEventBus } from '@/engine/events/event-bus'
 import type { AudioTrack } from '@/engine/model/audio'
 import { DEFAULT_ENVIRONMENT, type Environment } from '@/engine/model/environment'
-import type { Element, ElementChanges } from '@/engine/model/element'
+import type { Element, ElementChanges, ElementMeta } from '@/engine/model/element'
 import { resolveElementChanges } from '@/engine/model/element-changes'
 import type { AnimatableProperty, EasingType } from '@/engine/model/keyframe'
 import type { Project } from '@/engine/model/project'
@@ -76,6 +77,17 @@ function createSceneStore() {
     },
     removeElement: (elementId: string) => {
       history.execute(new RemoveElementCommand(elementId))
+    },
+    setElementMeta: (elementId: string, changes: ElementMeta) => {
+      history.execute(new SetElementMetaCommand(elementId, changes))
+    },
+    /** Live update without history — used while dragging/trimming a clip for real-time preview. */
+    patchElementMeta: (elementId: string, changes: ElementMeta) => {
+      const elements = project.elements.map((element) =>
+        element.id === elementId ? ({ ...element, ...changes } as Element) : element,
+      )
+      project = { ...project, elements }
+      events.emitSceneChanged()
     },
     duplicateElement: (elementId: string): string | null => {
       const original = project.elements.find((element) => element.id === elementId)
