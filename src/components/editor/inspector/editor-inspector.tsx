@@ -3,13 +3,14 @@ import { hasKeyframeTrack, resolveElementAtTime, type AnimatableProperty } from 
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { KeyframeToggle } from '@/components/editor/inspector/keyframe-toggle'
+import { TextInspector } from '@/components/editor/inspector/text-inspector'
 import { roundTo } from '@/lib/utils'
 import { usePlayback } from '@/state/use-playback'
 import { useScene } from '@/state/use-scene'
 import { useSelection } from '@/state/use-selection'
 
 function EditorInspector() {
-  const { project, updateElement, addKeyframe, clearKeyframeTrack } = useScene()
+  const { project, updateElement, addKeyframe, clearKeyframeTrack, setElementMeta } = useScene()
   const { selectedElementId } = useSelection()
   const { currentTime } = usePlayback()
   const baseElement = project.elements.find((candidate) => candidate.id === selectedElementId)
@@ -18,9 +19,6 @@ function EditorInspector() {
 
   const element = resolveElementAtTime(baseElement, currentTime)
 
-  // Once a property has a keyframe track, its rendered value only ever
-  // comes from that track — writing the base value would have no visible
-  // effect, so edits become an upsert at the current playhead time instead.
   const writeProperty = (property: AnimatableProperty, value: number | string) => {
     if (hasKeyframeTrack(baseElement, property)) {
       addKeyframe(baseElement.id, property, currentTime, value)
@@ -44,6 +42,21 @@ function EditorInspector() {
     const parsed = Number.parseFloat(value)
     if (Number.isNaN(parsed)) return
     writeProperty(key, roundTo(parsed))
+  }
+
+  if (element.type === 'text' && baseElement.type === 'text') {
+    return (
+      <TextInspector
+        element={element}
+        baseElement={baseElement}
+        environment={project.environment}
+        writeProperty={writeProperty}
+        toggleTrack={toggleTrack}
+        setNumber={setNumber}
+        updateElement={updateElement}
+        setElementMeta={setElementMeta}
+      />
+    )
   }
 
   return (
@@ -126,28 +139,6 @@ function EditorInspector() {
           className="h-8 w-full p-1"
         />
       </Field>
-
-      {element.type === 'text' && (
-        <>
-          <Field label="Text">
-            <Input
-              value={element.text}
-              onChange={(e) => updateElement(element.id, { text: e.target.value })}
-            />
-          </Field>
-          <Field
-            label="Font size"
-            isTracked={hasKeyframeTrack(baseElement, 'fontSize')}
-            onToggle={() => toggleTrack('fontSize', element.fontSize)}
-          >
-            <Input
-              type="number"
-              value={element.fontSize}
-              onChange={(e) => setNumber('fontSize', e.target.value)}
-            />
-          </Field>
-        </>
-      )}
     </div>
   )
 }

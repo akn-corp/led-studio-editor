@@ -5,8 +5,9 @@ import { measureBitmapText } from '@/engine/bitmap-font'
 const SQUARE_SIZE = { width: 4, height: 4 }
 const DEFAULT_TEXT = 'HELLO'
 const DEFAULT_FONT_SIZE = 1
+const DEFAULT_CLIP_DURATION = 5
 
-function createSquareElement(environment: Environment): SquareElement {
+function createSquareElement(environment: Environment, startTime = 0): SquareElement {
   return {
     id: crypto.randomUUID(),
     type: 'square',
@@ -18,10 +19,13 @@ function createSquareElement(environment: Environment): SquareElement {
     opacity: 1,
     fill: '#013d9d',
     keyframes: {},
+    startTime,
+    duration: DEFAULT_CLIP_DURATION,
+    hidden: false,
   }
 }
 
-function createTextElement(environment: Environment): TextElement {
+function createTextElement(environment: Environment, startTime = 0): TextElement {
   const { width, height } = measureBitmapText(DEFAULT_TEXT, DEFAULT_FONT_SIZE)
   return {
     id: crypto.randomUUID(),
@@ -36,6 +40,13 @@ function createTextElement(environment: Environment): TextElement {
     fontSize: DEFAULT_FONT_SIZE,
     fill: '#ffffff',
     keyframes: {},
+    startTime,
+    duration: DEFAULT_CLIP_DURATION,
+    hidden: false,
+    backgroundColor: null,
+    enterAnimation: null,
+    loopAnimation: null,
+    exitAnimation: null,
   }
 }
 

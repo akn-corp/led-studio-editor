@@ -1,8 +1,13 @@
 import { applyEasing } from '@/engine/interpolation/easing'
 import { interpolateColor, interpolateNumeric } from '@/engine/interpolation/interpolate-value'
+import { applyTextAnimation } from '@/engine/animation-presets/resolve-text-animation'
 import { ANIMATABLE_PROPERTY_KIND, type AnimatableProperty, type Keyframe } from '@/engine/model/keyframe'
 import type { Element } from '@/engine/model/element'
 import type { Project } from '@/engine/model/project'
+
+function isElementVisibleAt(element: Element, t: number): boolean {
+  return !element.hidden && t >= element.startTime && t <= element.startTime + element.duration
+}
 
 function resolveTrackValueAtTime(
   track: Keyframe[],
@@ -38,7 +43,7 @@ function resolveTrackValueAtTime(
 }
 
 function resolveElementAtTime(element: Element, t: number): Element {
-  const resolved = { ...element }
+  let resolved = { ...element }
 
   for (const [property, track] of Object.entries(element.keyframes) as [
     AnimatableProperty,
@@ -50,11 +55,17 @@ function resolveElementAtTime(element: Element, t: number): Element {
     ;(resolved as unknown as Record<AnimatableProperty, number | string>)[property] = value
   }
 
+  if (resolved.type === 'text') {
+    resolved = applyTextAnimation(resolved, t)
+  }
+
   return resolved
 }
 
 function resolveSceneAtTime(project: Project, t: number): Element[] {
-  return project.elements.map((element) => resolveElementAtTime(element, t))
+  return project.elements
+    .filter((element) => isElementVisibleAt(element, t))
+    .map((element) => resolveElementAtTime(element, t))
 }
 
 export { resolveElementAtTime, resolveSceneAtTime }

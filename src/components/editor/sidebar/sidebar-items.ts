@@ -16,7 +16,7 @@ import type { Element, Environment } from '@/engine'
 export interface SidebarSubItem {
   label: string
   icon?: typeof Component
-  create?: (environment: Environment) => Element
+  create?: (environment: Environment, startTime?: number) => Element
   isEnvironment?: boolean
   isAudio?: boolean
 }

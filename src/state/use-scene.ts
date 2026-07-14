@@ -14,6 +14,8 @@ function useScene() {
     patchElement: sceneStore.patchElement,
     removeElement: sceneStore.removeElement,
     duplicateElement: sceneStore.duplicateElement,
+    setElementMeta: sceneStore.setElementMeta,
+    patchElementMeta: sceneStore.patchElementMeta,
     addKeyframe: sceneStore.addKeyframe,
     removeKeyframe: sceneStore.removeKeyframe,
     clearKeyframeTrack: sceneStore.clearKeyframeTrack,

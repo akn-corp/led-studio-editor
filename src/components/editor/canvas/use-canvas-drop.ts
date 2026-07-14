@@ -1,6 +1,6 @@
 import type { DragEndEvent } from '@dnd-kit/react'
 import type { SidebarSubItem } from '@/components/editor/sidebar/sidebar-items'
-import { DEFAULT_ENVIRONMENT } from '@/engine'
+import { DEFAULT_ENVIRONMENT, playbackStore } from '@/engine'
 import { roundTo } from '@/lib/utils'
 import { computeCellSize } from '@/renderer/environment/cell-size'
 import { useScene } from '@/state/use-scene'
@@ -41,7 +41,7 @@ function useCanvasDrop() {
     const stageY = (dropY - position.y) / scale
 
     const cellSize = computeCellSize(environment.rows, environment.columns, size)
-    const element = subItem.create(environment)
+    const element = subItem.create(environment, playbackStore.getCurrentTime())
 
     addElement({
       ...element,
