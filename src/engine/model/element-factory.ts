@@ -17,6 +17,7 @@ function createSquareElement(environment: Environment): SquareElement {
     rotation: 0,
     opacity: 1,
     fill: '#013d9d',
+    keyframes: {},
   }
 }
 
@@ -34,6 +35,7 @@ function createTextElement(environment: Environment): TextElement {
     text: DEFAULT_TEXT,
     fontSize: DEFAULT_FONT_SIZE,
     fill: '#ffffff',
+    keyframes: {},
   }
 }
 

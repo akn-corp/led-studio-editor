@@ -1,10 +1,12 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import type Konva from 'konva'
 import { Layer, Transformer } from 'react-konva'
+import { resolveSceneAtTime, splitTrackedChanges, type AnimatableProperty } from '@/engine'
 import { ElementNode } from '@/renderer/elements/element-node'
 import { computeCellSize } from '@/renderer/environment/cell-size'
 import { selectionRectStore } from '@/renderer/selection-rect-store'
 import { useDisplayMode } from '@/state/use-display-mode'
+import { usePlayback } from '@/state/use-playback'
 import { useScene } from '@/state/use-scene'
 import { useSelection } from '@/state/use-selection'
 import { useViewport } from '@/state/use-viewport'
@@ -22,12 +24,18 @@ const TRANSFORMER_ANCHORS = [
 ] as const
 
 function ElementsLayer() {
-  const { project, environment, updateElement, patchElement } = useScene()
+  const { project, environment, updateElement, patchElement, addKeyframe } = useScene()
   const { mode } = useDisplayMode()
   const { selectedElementId, select } = useSelection()
   const { size, scale, position } = useViewport()
+  const { currentTime } = usePlayback()
   const cellSize = computeCellSize(environment.rows, environment.columns, size)
   const showAuthoring = mode === 'edit'
+
+  const elements = useMemo(
+    () => resolveSceneAtTime(project, currentTime),
+    [project, currentTime],
+  )
 
   const nodesRef = useRef(new Map<string, Konva.Node>())
   const transformerRef = useRef<Konva.Transformer>(null)
@@ -50,7 +58,7 @@ function ElementsLayer() {
     } else {
       selectionRectStore.setRect(null)
     }
-  }, [selectedElementId, project.elements, scale, position, showAuthoring])
+  }, [selectedElementId, elements, scale, position, showAuthoring])
 
   const handleSize = 8 / scale
   const borderWidth = 2 / scale
@@ -60,16 +68,28 @@ function ElementsLayer() {
 
   return (
     <Layer>
-      {project.elements.map((element) => {
+      {elements.map((element) => {
         const registerNode = (node: Konva.Node | null) => {
           if (node) nodesRef.current.set(element.id, node)
           else nodesRef.current.delete(element.id)
         }
         const onSelect = () => select(element.id)
-        const onChange = (changes: Parameters<typeof updateElement>[1]) =>
-          updateElement(element.id, changes)
-        const onPatch = (changes: Parameters<typeof patchElement>[1]) =>
-          patchElement(element.id, changes)
+        // Commit: properties with an active keyframe track record a keyframe
+        // at the current playhead time instead of writing the base value —
+        // once tracked, the base value is ignored by rendering.
+        const onChange = (changes: Parameters<typeof updateElement>[1]) => {
+          const { tracked, untracked } = splitTrackedChanges(element, changes)
+          if (Object.keys(untracked).length > 0) updateElement(element.id, untracked)
+          for (const [property, value] of Object.entries(tracked)) {
+            addKeyframe(element.id, property as AnimatableProperty, currentTime, value)
+          }
+        }
+        // Live drag preview: tracked properties are skipped (no live keyframe
+        // scrubbing yet) — they snap to their new keyframed value on commit.
+        const onPatch = (changes: Parameters<typeof patchElement>[1]) => {
+          const { untracked } = splitTrackedChanges(element, changes)
+          if (Object.keys(untracked).length > 0) patchElement(element.id, untracked)
+        }
 
         return (
           <ElementNode

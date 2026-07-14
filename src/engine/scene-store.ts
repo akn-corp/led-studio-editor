@@ -1,6 +1,9 @@
 import { AddElementCommand } from '@/engine/commands/add-element-command'
+import { AddKeyframeCommand } from '@/engine/commands/add-keyframe-command'
 import { createHistoryManager } from '@/engine/commands/history-manager'
+import { MoveKeyframeCommand } from '@/engine/commands/move-keyframe-command'
 import { RemoveElementCommand } from '@/engine/commands/remove-element-command'
+import { RemoveKeyframeCommand } from '@/engine/commands/remove-keyframe-command'
 import { ResizeEnvironmentCommand } from '@/engine/commands/resize-environment-command'
 import { SetAudioCommand } from '@/engine/commands/set-audio-command'
 import { UpdateElementCommand } from '@/engine/commands/update-element-command'
@@ -9,6 +12,7 @@ import type { AudioTrack } from '@/engine/model/audio'
 import { DEFAULT_ENVIRONMENT, type Environment } from '@/engine/model/environment'
 import type { Element, ElementChanges } from '@/engine/model/element'
 import { resolveElementChanges } from '@/engine/model/element-changes'
+import type { AnimatableProperty, EasingType } from '@/engine/model/keyframe'
 import type { Project } from '@/engine/model/project'
 
 const DUPLICATE_OFFSET = 0.5
@@ -84,6 +88,31 @@ function createSceneStore() {
       }
       history.execute(new AddElementCommand(duplicate))
       return duplicate.id
+    },
+
+    addKeyframe: (
+      elementId: string,
+      property: AnimatableProperty,
+      time: number,
+      value: number | string,
+      easing?: EasingType,
+    ) => {
+      history.execute(new AddKeyframeCommand(elementId, property, time, value, easing))
+    },
+    /** Removes a single keyframe if `time` is given, otherwise clears the whole track. */
+    removeKeyframe: (elementId: string, property: AnimatableProperty, time?: number) => {
+      history.execute(new RemoveKeyframeCommand(elementId, property, time))
+    },
+    clearKeyframeTrack: (elementId: string, property: AnimatableProperty) => {
+      history.execute(new RemoveKeyframeCommand(elementId, property))
+    },
+    moveKeyframe: (
+      elementId: string,
+      property: AnimatableProperty,
+      fromTime: number,
+      toTime: number,
+    ) => {
+      history.execute(new MoveKeyframeCommand(elementId, property, fromTime, toTime))
     },
 
     undo: history.undo,

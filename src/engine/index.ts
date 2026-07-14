@@ -10,3 +10,18 @@ export { getLedPreviewAppearance, hexToRgb } from '@/engine/rasterize-leds'
 export type { Rgb } from '@/engine/rasterize-leds'
 export { composeColorGrid, rgbToCss } from '@/engine/rasterize-scene'
 export type { ColorGrid } from '@/engine/rasterize-scene'
+export type {
+  AnimatableProperty,
+  EasingType,
+  Keyframe,
+  KeyframeTracks,
+} from '@/engine/model/keyframe'
+export { resolveElementAtTime, resolveSceneAtTime } from '@/engine/timeline/resolve-scene-at-time'
+export {
+  hasKeyframeTrack,
+  getElementKeyframeTimes,
+  getPropertiesKeyframedAt,
+  splitTrackedChanges,
+} from '@/engine/timeline/keyframe-utils'
+export { DEFAULT_DURATION, getProjectDuration } from '@/engine/timeline/get-project-duration'
+export { playbackStore } from '@/engine/timeline/playback-store'

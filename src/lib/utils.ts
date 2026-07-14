@@ -29,3 +29,11 @@ export function toLocalFileUrl(absolutePath: string) {
   url.pathname = absolutePath
   return url.href
 }
+
+// m:ss.d, matching the timeline transport's "0:00.0" display.
+export function formatTime(seconds: number) {
+  const clamped = Math.max(0, seconds)
+  const minutes = Math.floor(clamped / 60)
+  const rest = clamped - minutes * 60
+  return `${minutes}:${rest.toFixed(1).padStart(4, '0')}`
+}

@@ -1,15 +1,41 @@
+import type { ReactNode } from 'react'
+import { hasKeyframeTrack, resolveElementAtTime, type AnimatableProperty } from '@/engine'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { KeyframeToggle } from '@/components/editor/inspector/keyframe-toggle'
 import { roundTo } from '@/lib/utils'
+import { usePlayback } from '@/state/use-playback'
 import { useScene } from '@/state/use-scene'
 import { useSelection } from '@/state/use-selection'
 
 function EditorInspector() {
-  const { project, updateElement } = useScene()
+  const { project, updateElement, addKeyframe, clearKeyframeTrack } = useScene()
   const { selectedElementId } = useSelection()
-  const element = project.elements.find((candidate) => candidate.id === selectedElementId)
+  const { currentTime } = usePlayback()
+  const baseElement = project.elements.find((candidate) => candidate.id === selectedElementId)
 
-  if (!element) return null
+  if (!baseElement) return null
+
+  const element = resolveElementAtTime(baseElement, currentTime)
+
+  // Once a property has a keyframe track, its rendered value only ever
+  // comes from that track — writing the base value would have no visible
+  // effect, so edits become an upsert at the current playhead time instead.
+  const writeProperty = (property: AnimatableProperty, value: number | string) => {
+    if (hasKeyframeTrack(baseElement, property)) {
+      addKeyframe(baseElement.id, property, currentTime, value)
+    } else {
+      updateElement(baseElement.id, { [property]: value })
+    }
+  }
+
+  const toggleTrack = (property: AnimatableProperty, currentValue: number | string) => {
+    if (hasKeyframeTrack(baseElement, property)) {
+      clearKeyframeTrack(baseElement.id, property)
+    } else {
+      addKeyframe(baseElement.id, property, currentTime, currentValue)
+    }
+  }
 
   const setNumber = (
     key: 'x' | 'y' | 'width' | 'height' | 'rotation' | 'opacity' | 'fontSize',
@@ -17,7 +43,7 @@ function EditorInspector() {
   ) => {
     const parsed = Number.parseFloat(value)
     if (Number.isNaN(parsed)) return
-    updateElement(element.id, { [key]: roundTo(parsed) })
+    writeProperty(key, roundTo(parsed))
   }
 
   return (
@@ -25,34 +51,58 @@ function EditorInspector() {
       <h2 className="text-sm font-semibold capitalize">{element.type}</h2>
 
       <div className="grid grid-cols-2 gap-3">
-        <Field label="X">
+        <Field
+          label="X"
+          isTracked={hasKeyframeTrack(baseElement, 'x')}
+          onToggle={() => toggleTrack('x', element.x)}
+        >
           <Input type="number" value={element.x} onChange={(e) => setNumber('x', e.target.value)} />
         </Field>
-        <Field label="Y">
+        <Field
+          label="Y"
+          isTracked={hasKeyframeTrack(baseElement, 'y')}
+          onToggle={() => toggleTrack('y', element.y)}
+        >
           <Input type="number" value={element.y} onChange={(e) => setNumber('y', e.target.value)} />
         </Field>
-        <Field label="Width">
+        <Field
+          label="Width"
+          isTracked={hasKeyframeTrack(baseElement, 'width')}
+          onToggle={() => toggleTrack('width', element.width)}
+        >
           <Input
             type="number"
             value={element.width}
             onChange={(e) => setNumber('width', e.target.value)}
           />
         </Field>
-        <Field label="Height">
+        <Field
+          label="Height"
+          isTracked={hasKeyframeTrack(baseElement, 'height')}
+          onToggle={() => toggleTrack('height', element.height)}
+        >
           <Input
             type="number"
             value={element.height}
             onChange={(e) => setNumber('height', e.target.value)}
           />
         </Field>
-        <Field label="Rotation">
+        <Field
+          label="Rotation"
+          isTracked={hasKeyframeTrack(baseElement, 'rotation')}
+          onToggle={() => toggleTrack('rotation', element.rotation)}
+        >
           <Input
             type="number"
             value={element.rotation}
             onChange={(e) => setNumber('rotation', e.target.value)}
           />
         </Field>
-        <Field label="Opacity">
+        <Field
+          label="Opacity"
+          isTracked={hasKeyframeTrack(baseElement, 'opacity')}
+          onToggle={() => toggleTrack('opacity', element.opacity)}
+        >
           <Input
             type="number"
             min={0}
@@ -64,11 +114,15 @@ function EditorInspector() {
         </Field>
       </div>
 
-      <Field label="Fill">
+      <Field
+        label="Fill"
+        isTracked={hasKeyframeTrack(baseElement, 'fill')}
+        onToggle={() => toggleTrack('fill', element.fill)}
+      >
         <Input
           type="color"
           value={element.fill}
-          onChange={(e) => updateElement(element.id, { fill: e.target.value })}
+          onChange={(e) => writeProperty('fill', e.target.value)}
           className="h-8 w-full p-1"
         />
       </Field>
@@ -81,7 +135,11 @@ function EditorInspector() {
               onChange={(e) => updateElement(element.id, { text: e.target.value })}
             />
           </Field>
-          <Field label="Font size">
+          <Field
+            label="Font size"
+            isTracked={hasKeyframeTrack(baseElement, 'fontSize')}
+            onToggle={() => toggleTrack('fontSize', element.fontSize)}
+          >
             <Input
               type="number"
               value={element.fontSize}
@@ -94,10 +152,23 @@ function EditorInspector() {
   )
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function Field({
+  label,
+  children,
+  isTracked,
+  onToggle,
+}: {
+  label: string
+  children: ReactNode
+  isTracked?: boolean
+  onToggle?: () => void
+}) {
   return (
     <div className="flex flex-col gap-1">
-      <Label className="text-xs text-muted-foreground">{label}</Label>
+      <div className="flex items-center justify-between">
+        <Label className="text-xs text-muted-foreground">{label}</Label>
+        {onToggle && <KeyframeToggle active={!!isTracked} onToggle={onToggle} />}
+      </div>
       {children}
     </div>
   )

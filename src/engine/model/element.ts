@@ -1,3 +1,5 @@
+import type { KeyframeTracks } from '@/engine/model/keyframe'
+
 interface BaseElement {
   id: string
   x: number
@@ -6,6 +8,7 @@ interface BaseElement {
   height: number
   rotation: number
   opacity: number
+  keyframes: KeyframeTracks
 }
 
 export interface SquareElement extends BaseElement {
