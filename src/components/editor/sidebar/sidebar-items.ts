@@ -8,6 +8,7 @@ import {
   Spotlight,
   TvMinimalPlay,
   Type,
+  Upload,
 } from 'lucide-react'
 import { createSquareElement, createTextElement } from '@/engine'
 import type { Element, Environment } from '@/engine'
@@ -17,6 +18,7 @@ export interface SidebarSubItem {
   icon?: typeof Component
   create?: (environment: Environment) => Element
   isEnvironment?: boolean
+  isAudio?: boolean
 }
 
 export interface SidebarItem {
@@ -41,7 +43,11 @@ export const sidebarItems: SidebarItem[] = [
     subItems: [{ label: 'Text', create: createTextElement }],
   },
   { label: 'Videos', icon: TvMinimalPlay },
-  { label: 'Audio', icon: Music },
+  {
+    label: 'Audio',
+    icon: Music,
+    subItems: [{ label: 'Upload Audio', icon: Upload, isAudio: true }],
+  },
   {
     label: 'Shapes',
     icon: Shapes,

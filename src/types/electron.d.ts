@@ -19,6 +19,7 @@ export interface ElectronPreviewAPI {
 export interface ElectronAPI {
   platform: string
   preview?: ElectronPreviewAPI
+  getPathForFile?: (file: File) => string
 }
 
 declare global {

@@ -17,3 +17,15 @@ export function roundTo(value: number, decimals = 2) {
   const factor = 10 ** decimals
   return Math.round(value * factor) / factor
 }
+
+// Renderer-side `file://` fetches/loads are blocked cross-origin (dev server
+// runs on http://localhost); local media goes through the `local-file:`
+// scheme the main process registers instead — see electron/main.ts. The
+// host segment is a required-but-unused placeholder: `local-file:` is
+// registered as a "standard" scheme, and the URL spec rejects an empty
+// host for those (only `file:` gets that exemption).
+export function toLocalFileUrl(absolutePath: string) {
+  const url = new URL('local-file://local')
+  url.pathname = absolutePath
+  return url.href
+}

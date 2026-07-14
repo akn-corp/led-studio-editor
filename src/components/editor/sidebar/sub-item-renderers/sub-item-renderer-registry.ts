@@ -1,3 +1,4 @@
+import { AudioSubItem } from '@/components/editor/sidebar/sub-item-renderers/audio-sub-item'
 import { ElementsSubItem } from '@/components/editor/sidebar/sub-item-renderers/elements-sub-item'
 import { ShapesSubItem } from '@/components/editor/sidebar/sub-item-renderers/shapes-sub-item'
 import type { SubItemRendererProps } from '@/components/editor/sidebar/sub-item-renderers/sub-item-renderer-props'
@@ -8,6 +9,7 @@ const subItemRenderers: Record<string, ComponentType<SubItemRendererProps>> = {
   Elements: ElementsSubItem,
   Shapes: ShapesSubItem,
   Text: TextSubItem,
+  Audio: AudioSubItem,
 }
 
 function getSubItemRenderer(category: string): ComponentType<SubItemRendererProps> {

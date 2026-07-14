@@ -2,8 +2,10 @@ import { AddElementCommand } from '@/engine/commands/add-element-command'
 import { createHistoryManager } from '@/engine/commands/history-manager'
 import { RemoveElementCommand } from '@/engine/commands/remove-element-command'
 import { ResizeEnvironmentCommand } from '@/engine/commands/resize-environment-command'
+import { SetAudioCommand } from '@/engine/commands/set-audio-command'
 import { UpdateElementCommand } from '@/engine/commands/update-element-command'
 import { createEventBus } from '@/engine/events/event-bus'
+import type { AudioTrack } from '@/engine/model/audio'
 import { DEFAULT_ENVIRONMENT, type Environment } from '@/engine/model/environment'
 import type { Element, ElementChanges } from '@/engine/model/element'
 import { resolveElementChanges } from '@/engine/model/element-changes'
@@ -17,6 +19,7 @@ function createDefaultProject(): Project {
     name: 'Untitled Project',
     environment: { ...DEFAULT_ENVIRONMENT },
     elements: [],
+    audio: null,
   }
 }
 
@@ -46,6 +49,10 @@ function createSceneStore() {
 
     setEnvironment: (environment: Partial<Environment>) => {
       history.execute(new ResizeEnvironmentCommand(environment))
+    },
+    /** Pass `null` to clear the attached reference audio file. */
+    setAudio: (audio: AudioTrack | null) => {
+      history.execute(new SetAudioCommand(audio))
     },
     addElement: (element: Element) => {
       history.execute(new AddElementCommand(element))

@@ -1,4 +1,4 @@
-import { contextBridge, ipcRenderer } from 'electron'
+import { contextBridge, ipcRenderer, webUtils } from 'electron'
 import type { LedEntry } from '../src/routing/protocol.js'
 
 contextBridge.exposeInMainWorld('electronAPI', {
@@ -9,4 +9,5 @@ contextBridge.exposeInMainWorld('electronAPI', {
     sendFrame: (frame: { frameId: number; entries: LedEntry[] }) =>
       ipcRenderer.invoke('preview:sendFrame', frame),
   },
+  getPathForFile: (file: File) => webUtils.getPathForFile(file),
 })

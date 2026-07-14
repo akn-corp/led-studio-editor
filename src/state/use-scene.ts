@@ -8,6 +8,7 @@ function useScene() {
     project,
     environment: project.environment,
     setEnvironment: sceneStore.setEnvironment,
+    setAudio: sceneStore.setAudio,
     addElement: sceneStore.addElement,
     updateElement: sceneStore.updateElement,
     patchElement: sceneStore.patchElement,
