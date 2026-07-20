@@ -1,9 +1,11 @@
 import { AddElementCommand } from '@/engine/commands/add-element-command'
 import { AddKeyframeCommand } from '@/engine/commands/add-keyframe-command'
+import { AddVideoAssetsCommand } from '@/engine/commands/add-video-assets-command'
 import { createHistoryManager } from '@/engine/commands/history-manager'
 import { MoveKeyframeCommand } from '@/engine/commands/move-keyframe-command'
 import { RemoveElementCommand } from '@/engine/commands/remove-element-command'
 import { RemoveKeyframeCommand } from '@/engine/commands/remove-keyframe-command'
+import { RemoveVideoAssetCommand } from '@/engine/commands/remove-video-asset-command'
 import { ResizeEnvironmentCommand } from '@/engine/commands/resize-environment-command'
 import { SetAudioCommand } from '@/engine/commands/set-audio-command'
 import { SetElementMetaCommand } from '@/engine/commands/set-element-meta-command'
@@ -15,6 +17,7 @@ import type { Element, ElementChanges, ElementMeta } from '@/engine/model/elemen
 import { resolveElementChanges } from '@/engine/model/element-changes'
 import type { AnimatableProperty, EasingType } from '@/engine/model/keyframe'
 import type { Project } from '@/engine/model/project'
+import type { VideoAsset } from '@/engine/model/video-asset'
 
 const DUPLICATE_OFFSET = 0.5
 
@@ -25,6 +28,7 @@ function createDefaultProject(): Project {
     environment: { ...DEFAULT_ENVIRONMENT },
     elements: [],
     audio: null,
+    videoAssets: [],
   }
 }
 
@@ -58,6 +62,13 @@ function createSceneStore() {
     /** Pass `null` to clear the attached reference audio file. */
     setAudio: (audio: AudioTrack | null) => {
       history.execute(new SetAudioCommand(audio))
+    },
+    /** One undo step for a whole multi-file upload. */
+    addVideoAssets: (assets: VideoAsset[]) => {
+      history.execute(new AddVideoAssetsCommand(assets))
+    },
+    removeVideoAsset: (assetId: string) => {
+      history.execute(new RemoveVideoAssetCommand(assetId))
     },
     addElement: (element: Element) => {
       history.execute(new AddElementCommand(element))

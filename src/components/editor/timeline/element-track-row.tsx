@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Eye, EyeOff, Square, Trash2, Type, GripVertical } from 'lucide-react'
+import { Eye, EyeOff, Square, Trash2, Type, Video, GripVertical } from 'lucide-react'
 import type { Element } from '@/engine'
 import { getElementKeyframeTimes, getPropertiesKeyframedAt } from '@/engine'
 import { cn } from '@/lib/utils'
@@ -10,7 +10,7 @@ import { TimelineClip } from '@/components/editor/timeline/timeline-clip'
 import { TimelineLaneRow } from '@/components/editor/timeline/timeline-lane-row'
 import { trackWidthFor } from '@/components/editor/timeline/timeline-scale'
 
-const ELEMENT_ICON = { square: Square, text: Type } as const
+const ELEMENT_ICON = { square: Square, text: Type, video: Video } as const
 
 function ElementTrackRow({
   element,

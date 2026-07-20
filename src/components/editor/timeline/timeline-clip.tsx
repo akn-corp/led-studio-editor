@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Square, Type } from 'lucide-react'
+import { Square, Type, Video } from 'lucide-react'
 import type { Element } from '@/engine'
 import { cn } from '@/lib/utils'
 import { useScene } from '@/state/use-scene'
@@ -7,7 +7,13 @@ import { useScene } from '@/state/use-scene'
 const MIN_CLIP_DURATION = 0.2
 const SNAP_THRESHOLD_PX = 8
 
-const ELEMENT_ICON = { square: Square, text: Type } as const
+const ELEMENT_ICON = { square: Square, text: Type, video: Video } as const
+
+function clipLabel(element: Element): string {
+  if (element.type === 'text') return element.text
+  if (element.type === 'video') return element.fileName
+  return 'Square'
+}
 
 interface DragState {
   mode: 'move' | 'trim-start' | 'trim-end'
@@ -119,9 +125,9 @@ function TimelineClip({
       aria-label={`${element.type} clip`}
       className={cn(
         'absolute inset-y-1 flex cursor-grab items-center gap-1 rounded-md border px-1.5 text-xs text-white select-none active:cursor-grabbing',
-        element.type === 'text'
-          ? 'border-blue-400/50 bg-blue-500/80'
-          : 'border-indigo-400/50 bg-indigo-500/80',
+        element.type === 'text' && 'border-blue-400/50 bg-blue-500/80',
+        element.type === 'square' && 'border-indigo-400/50 bg-indigo-500/80',
+        element.type === 'video' && 'border-emerald-400/50 bg-emerald-500/80',
         isSelected && 'ring-2 ring-white',
       )}
       style={{ left: startTime * pixelsPerSecond, width: Math.max(duration * pixelsPerSecond, 4) }}
@@ -140,7 +146,7 @@ function TimelineClip({
         onPointerUp={commitDrag}
       />
       <Icon className="size-3 shrink-0" />
-      <span className="truncate">{element.type === 'text' ? element.text : 'Square'}</span>
+      <span className="truncate">{clipLabel(element)}</span>
       <div
         className="absolute inset-y-0 right-0 w-1.5 cursor-ew-resize"
         onPointerDown={(e) => beginDrag('trim-end', e)}

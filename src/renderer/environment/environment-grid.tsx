@@ -4,6 +4,7 @@ import { composeColorGrid, resolveSceneAtTime } from '@/engine'
 import { SELECTION_COLOR } from '@/renderer/environment/constants'
 import { computeCellSize } from '@/renderer/environment/cell-size'
 import { getDisplayModeRenderer } from '@/renderer/environment/display-mode-renderers'
+import { getVideoElement } from '@/renderer/video/video-playback-store'
 import { clamp } from '@/lib/utils'
 import { useDisplayMode } from '@/state/use-display-mode'
 import { usePlayback } from '@/state/use-playback'
@@ -21,7 +22,11 @@ function EnvironmentGrid({ isSelected }: { isSelected?: boolean }) {
 
   const cellSize = computeCellSize(rows, columns, size)
   const colorGrid = useMemo(
-    () => composeColorGrid({ ...project, elements: resolveSceneAtTime(project, currentTime) }),
+    () =>
+      composeColorGrid(
+        { ...project, elements: resolveSceneAtTime(project, currentTime) },
+        { getVideoElement },
+      ),
     [project, currentTime],
   )
   const ledRadius = clamp(cellSize * 0.1, 1, 4)

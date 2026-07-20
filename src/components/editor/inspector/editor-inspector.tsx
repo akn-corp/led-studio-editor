@@ -4,13 +4,15 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { KeyframeToggle } from '@/components/editor/inspector/keyframe-toggle'
 import { TextInspector } from '@/components/editor/inspector/text-inspector'
+import { VideoInspector } from '@/components/editor/inspector/video-inspector'
 import { roundTo } from '@/lib/utils'
 import { usePlayback } from '@/state/use-playback'
 import { useScene } from '@/state/use-scene'
 import { useSelection } from '@/state/use-selection'
 
 function EditorInspector() {
-  const { project, updateElement, addKeyframe, clearKeyframeTrack, setElementMeta } = useScene()
+  const { project, updateElement, addKeyframe, clearKeyframeTrack, setElementMeta, patchElementMeta } =
+    useScene()
   const { selectedElementId } = useSelection()
   const { currentTime } = usePlayback()
   const baseElement = project.elements.find((candidate) => candidate.id === selectedElementId)
@@ -44,7 +46,12 @@ function EditorInspector() {
     writeProperty(key, roundTo(parsed))
   }
 
-  if (element.type === 'text' && baseElement.type === 'text') {
+  // element is derived from baseElement via resolveElementAtTime, which always
+  // preserves `.type` — narrowing on baseElement first, then element with its
+  // own guard, lets TS narrow both without a compound (&&) condition, which it
+  // can't carry past the block.
+  if (baseElement.type === 'text') {
+    if (element.type !== 'text') return null
     return (
       <TextInspector
         element={element}
@@ -58,6 +65,26 @@ function EditorInspector() {
       />
     )
   }
+
+  if (baseElement.type === 'video') {
+    if (element.type !== 'video') return null
+    return (
+      <VideoInspector
+        element={element}
+        baseElement={baseElement}
+        environment={project.environment}
+        writeProperty={writeProperty}
+        toggleTrack={toggleTrack}
+        setNumber={setNumber}
+        updateElement={updateElement}
+        setElementMeta={setElementMeta}
+        patchElementMeta={patchElementMeta}
+      />
+    )
+  }
+
+  // Only Square is left at this point (baseElement.type narrowed by elimination).
+  if (element.type !== 'square') return null
 
   return (
     <div className="pointer-events-auto flex h-full w-72 shrink-0 flex-col gap-4 overflow-y-auto border border-border/50 bg-background/70 p-4 shadow-lg ring-1 ring-foreground/5 backdrop-blur-xl backdrop-saturate-150 dark:ring-foreground/10">

@@ -1,6 +1,7 @@
 import { applyEasing } from '@/engine/interpolation/easing'
 import { interpolateColor, interpolateNumeric } from '@/engine/interpolation/interpolate-value'
 import { applyTextAnimation } from '@/engine/animation-presets/resolve-text-animation'
+import { applyVideoAnimation } from '@/engine/animation-presets/resolve-video-animation'
 import { ANIMATABLE_PROPERTY_KIND, type AnimatableProperty, type Keyframe } from '@/engine/model/keyframe'
 import type { Element } from '@/engine/model/element'
 import type { Project } from '@/engine/model/project'
@@ -57,6 +58,8 @@ function resolveElementAtTime(element: Element, t: number): Element {
 
   if (resolved.type === 'text') {
     resolved = applyTextAnimation(resolved, t)
+  } else if (resolved.type === 'video') {
+    resolved = applyVideoAnimation(resolved, t)
   }
 
   return resolved
@@ -68,4 +71,4 @@ function resolveSceneAtTime(project: Project, t: number): Element[] {
     .map((element) => resolveElementAtTime(element, t))
 }
 
-export { resolveElementAtTime, resolveSceneAtTime }
+export { resolveElementAtTime, resolveSceneAtTime, isElementVisibleAt }

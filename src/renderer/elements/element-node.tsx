@@ -2,6 +2,7 @@ import type Konva from 'konva'
 import type { Element, ElementChanges } from '@/engine'
 import { SquareNode } from '@/renderer/elements/square-node'
 import { TextNode } from '@/renderer/elements/text-node'
+import { VideoNode } from '@/renderer/elements/video-node'
 
 interface ElementNodeProps {
   element: Element
@@ -38,6 +39,18 @@ function ElementNode({
     case 'text':
       return (
         <TextNode
+          element={element}
+          cellSize={cellSize}
+          showAuthoring={showAuthoring}
+          onSelect={onSelect}
+          onChange={onChange}
+          onPatch={onPatch}
+          registerNode={registerNode}
+        />
+      )
+    case 'video':
+      return (
+        <VideoNode
           element={element}
           cellSize={cellSize}
           showAuthoring={showAuthoring}
