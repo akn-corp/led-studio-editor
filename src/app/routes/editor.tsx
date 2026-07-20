@@ -5,6 +5,7 @@ import { EditorInspector } from '@/components/editor/inspector/editor-inspector'
 import { EditorNavbar } from '@/components/editor/navbar/editor-navbar'
 import { EditorSidebar } from '@/components/editor/sidebar/editor-sidebar'
 import { EditorTimeline } from '@/components/editor/timeline/editor-timeline'
+import { VideoPlaybackManager } from '@/renderer/video/video-playback-manager'
 import { useSelection } from '@/state/use-selection'
 import { cn } from '@/lib/utils'
 import { DragDropProvider } from '@dnd-kit/react'
@@ -17,6 +18,7 @@ function Editor() {
   return (
     <DragDropProvider onDragEnd={handleDragEnd}>
       <div className="relative isolate h-screen w-screen overflow-hidden">
+        <VideoPlaybackManager />
         <EditorCanvas />
         <div className="pointer-events-none absolute inset-0 z-10 flex gap-4 pt-10">
           <EditorSidebar />

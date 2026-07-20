@@ -3,6 +3,7 @@ import { ElementsSubItem } from '@/components/editor/sidebar/sub-item-renderers/
 import { ShapesSubItem } from '@/components/editor/sidebar/sub-item-renderers/shapes-sub-item'
 import type { SubItemRendererProps } from '@/components/editor/sidebar/sub-item-renderers/sub-item-renderer-props'
 import { TextSubItem } from '@/components/editor/sidebar/sub-item-renderers/text-sub-item'
+import { VideoSubItem } from '@/components/editor/sidebar/sub-item-renderers/video-sub-item'
 import type { ComponentType } from 'react'
 
 const subItemRenderers: Record<string, ComponentType<SubItemRendererProps>> = {
@@ -10,6 +11,7 @@ const subItemRenderers: Record<string, ComponentType<SubItemRendererProps>> = {
   Shapes: ShapesSubItem,
   Text: TextSubItem,
   Audio: AudioSubItem,
+  Videos: VideoSubItem,
 }
 
 function getSubItemRenderer(category: string): ComponentType<SubItemRendererProps> {

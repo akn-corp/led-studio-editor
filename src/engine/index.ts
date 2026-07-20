@@ -9,20 +9,29 @@ export type {
   ElementMeta,
   SquareElement,
   TextElement,
+  VideoElement,
+  VideoCropRect,
 } from '@/engine/model/element'
-export { createSquareElement, createTextElement } from '@/engine/model/element-factory'
+export type { VideoAsset } from '@/engine/model/video-asset'
+export { createSquareElement, createTextElement, createVideoElement } from '@/engine/model/element-factory'
+export type { FitMode } from '@/engine/fit-transform'
+export { computeFitTransform } from '@/engine/fit-transform'
 export { isPointInElement } from '@/engine/coverage'
 export { getLedPreviewAppearance, hexToRgb } from '@/engine/rasterize-leds'
 export type { Rgb } from '@/engine/rasterize-leds'
 export { composeColorGrid, rgbToCss } from '@/engine/rasterize-scene'
-export type { ColorGrid } from '@/engine/rasterize-scene'
+export type { ColorGrid, ComposeColorGridOptions } from '@/engine/rasterize-scene'
 export type {
   AnimatableProperty,
   EasingType,
   Keyframe,
   KeyframeTracks,
 } from '@/engine/model/keyframe'
-export { resolveElementAtTime, resolveSceneAtTime } from '@/engine/timeline/resolve-scene-at-time'
+export {
+  resolveElementAtTime,
+  resolveSceneAtTime,
+  isElementVisibleAt,
+} from '@/engine/timeline/resolve-scene-at-time'
 export {
   hasKeyframeTrack,
   getElementKeyframeTimes,
@@ -33,3 +42,9 @@ export { DEFAULT_DURATION, getProjectDuration } from '@/engine/timeline/get-proj
 export { playbackStore } from '@/engine/timeline/playback-store'
 export type { AnimationPreset, AnimationPresetId, PresetDelta } from '@/engine/animation-presets/types'
 export { getAnimationPreset, listAnimationPresets } from '@/engine/animation-presets/presets'
+export type {
+  VideoAnimationPreset,
+  VideoAnimationPresetId,
+  VideoPresetDelta,
+} from '@/engine/animation-presets/video-types'
+export { getVideoAnimationPreset, listVideoAnimationPresets } from '@/engine/animation-presets/video-presets'

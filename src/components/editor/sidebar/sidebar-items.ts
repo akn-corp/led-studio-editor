@@ -19,6 +19,7 @@ export interface SidebarSubItem {
   create?: (environment: Environment, startTime?: number) => Element
   isEnvironment?: boolean
   isAudio?: boolean
+  isVideo?: boolean
 }
 
 export interface SidebarItem {
@@ -42,7 +43,11 @@ export const sidebarItems: SidebarItem[] = [
     icon: Type,
     subItems: [{ label: 'Text', create: createTextElement }],
   },
-  { label: 'Videos', icon: TvMinimalPlay },
+  {
+    label: 'Videos',
+    icon: TvMinimalPlay,
+    subItems: [{ label: 'Upload Video', icon: Upload, isVideo: true }],
+  },
   {
     label: 'Audio',
     icon: Music,
