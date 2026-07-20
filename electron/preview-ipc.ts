@@ -1,6 +1,6 @@
 import dgram from 'node:dgram'
 import { ipcMain } from 'electron'
-import { encodeLedFrame, STATE_PORT } from './protocol.js'
+import { encodeLedFrame, setWallBands, STATE_PORT, type WallMapping } from './protocol.js'
 import type { LedEntry } from './protocol.js'
 
 interface PreviewTarget {
@@ -66,6 +66,14 @@ export function setupPreviewIpc() {
     }
     sendStateFrame(frame)
     return { ok: true, packets: encodeLedFrame(frame.frameId, frame.entries).length }
+  })
+
+  ipcMain.handle('preview:setWallBands', (_event, data: WallMapping) => {
+    setWallBands(data)
+    console.log(
+      `[preview] wall-bands updated — columns=${data.columns}, bands=${data.bands.length}`,
+    )
+    return { ok: true, columns: data.columns, bands: data.bands.length }
   })
 }
 

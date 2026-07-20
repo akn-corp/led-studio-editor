@@ -13,7 +13,21 @@ export {
 export type { Rgb, LedEntry } from '@/engine/rasterize-leds'
 export { composeColorGrid, rgbToCss } from '@/engine/rasterize-scene'
 export type { ColorGrid } from '@/engine/rasterize-scene'
-export { entityIdForCell, getWallColumns, wallMapping, ENTITY_ID_START } from '@/engine/wall-mapping'
+export {
+  entityIdForCell,
+  getWallColumns,
+  wallMapping,
+  ENTITY_ID_START,
+  getWallMapping,
+  setWallMapping,
+  resetWallMapping,
+  getAllWallLedChunks,
+} from '@/engine/wall-mapping'
 export { encodeLedsChunk, encodeLedFrame, STATE_PORT, MAX_LED_ENTRIES_PER_CHUNK } from '@/engine/protocol'
-export { getAllWallLedChunks } from '@/engine/wall-mapping'
+export {
+  fetchHubWallBands,
+  fetchHubHealth,
+  parseWallBandsJson,
+  DEFAULT_CONFIG_BASE_URL,
+} from '@/engine/hub-config-client'
 export { createPlaybackLoop } from '@/engine/playback-loop'

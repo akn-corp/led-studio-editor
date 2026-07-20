@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { applyWallMapping } from '@/engine/apply-wall-mapping'
+import { fetchHubWallBands } from '@/engine/hub-config-client'
 import { createPlaybackLoop } from '@/engine/playback-loop'
 import { sceneStore } from '@/engine/scene-store'
+import { getHubSettings } from '@/state/use-hub-settings'
 
 function isPreviewAvailable(): boolean {
   return typeof window !== 'undefined' && Boolean(window.electronAPI?.preview)
@@ -8,6 +11,7 @@ function isPreviewAvailable(): boolean {
 
 function usePreview() {
   const [isRunning, setIsRunning] = useState(false)
+  const [status, setStatus] = useState<string | null>(null)
   const loopRef = useRef<ReturnType<typeof createPlaybackLoop> | null>(null)
 
   const stop = useCallback(async () => {
@@ -21,7 +25,23 @@ function usePreview() {
     const api = window.electronAPI?.preview
     if (!api) return
 
-    await api.start({ host: '127.0.0.1', port: 6455 })
+    const settings = getHubSettings()
+
+    if (settings.syncOnPreviewStart) {
+      try {
+        const wallBands = await fetchHubWallBands(settings.configBaseUrl)
+        await applyWallMapping(wallBands)
+        setStatus(`Hub sync OK · ${settings.stateHost}:${settings.statePort}`)
+      } catch (err) {
+        setStatus(
+          `Hub offline — cache local · ${err instanceof Error ? err.message : String(err)}`,
+        )
+      }
+    } else {
+      setStatus(`${settings.stateHost}:${settings.statePort}`)
+    }
+
+    await api.start({ host: settings.stateHost, port: settings.statePort })
     const loop = createPlaybackLoop({
       getProject: () => sceneStore.getProject(),
       sendFrame: (frame) => {
@@ -59,6 +79,7 @@ function usePreview() {
     isRunning,
     toggle,
     available: isPreviewAvailable(),
+    status,
   }
 }
 

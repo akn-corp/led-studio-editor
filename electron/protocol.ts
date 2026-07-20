@@ -1,6 +1,6 @@
 /** Art-Net state protocol encoder (mirrors src/engine/protocol.ts + protocole-state.md). */
 
-import wallBands from '../src/config/wall-bands.json' with { type: 'json' }
+import defaultWallBands from '../src/config/wall-bands.json' with { type: 'json' }
 
 export const STATE_PORT = 6455
 export const LED_HEADER_SIZE = 13
@@ -17,9 +17,35 @@ export interface LedEntry extends Rgb {
   entityId: number
 }
 
+export interface WallBand {
+  column: number
+  entityStart: number
+  entityCount: number
+}
+
+export interface WallMapping {
+  columns: number
+  bands: WallBand[]
+  generatedFrom?: string
+  profile?: string
+}
+
 interface WallLedChunk {
   startEntityId: number
   entryCount: number
+}
+
+let wallBands: WallMapping = defaultWallBands as WallMapping
+
+export function getWallBands(): WallMapping {
+  return wallBands
+}
+
+export function setWallBands(data: WallMapping): void {
+  if (!data?.bands?.length) {
+    throw new Error('wall-bands invalide')
+  }
+  wallBands = data
 }
 
 function chunkEntityRange(

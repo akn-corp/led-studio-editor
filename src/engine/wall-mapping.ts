@@ -9,11 +9,76 @@ export interface WallBand {
 export interface WallMapping {
   columns: number
   bands: WallBand[]
+  generatedFrom?: string
+  profile?: string
 }
 
-const wallMapping = wallBandsData as WallMapping
+const DEFAULT_WALL_MAPPING = wallBandsData as WallMapping
+let wallMapping: WallMapping = structuredClone(DEFAULT_WALL_MAPPING)
 
-export const ENTITY_ID_START = wallMapping.bands[0]?.entityStart ?? 100
+export function getWallMapping(): WallMapping {
+  return wallMapping
+}
+
+export function getDefaultWallMapping(): WallMapping {
+  return structuredClone(DEFAULT_WALL_MAPPING)
+}
+
+export function setWallMapping(data: WallMapping): WallMapping {
+  const errors = validateWallMapping(data)
+  if (errors.length) {
+    throw new Error(errors.join('; '))
+  }
+  wallMapping = {
+    columns: data.columns,
+    bands: data.bands.map((band) => ({ ...band })),
+    generatedFrom: data.generatedFrom,
+    profile: data.profile,
+  }
+  return wallMapping
+}
+
+export function resetWallMapping(): WallMapping {
+  return setWallMapping(getDefaultWallMapping())
+}
+
+export function validateWallMapping(data: unknown): string[] {
+  const errors: string[] = []
+  if (!data || typeof data !== 'object') {
+    return ['Mapping invalide (objet attendu)']
+  }
+  const mapping = data as Partial<WallMapping>
+  if (typeof mapping.columns !== 'number' || mapping.columns < 1) {
+    errors.push('columns doit être un entier ≥ 1')
+  }
+  if (!Array.isArray(mapping.bands) || mapping.bands.length === 0) {
+    errors.push('bands doit être un tableau non vide')
+    return errors
+  }
+  if (typeof mapping.columns === 'number' && mapping.bands.length !== mapping.columns) {
+    errors.push(`bands.length (${mapping.bands.length}) ≠ columns (${mapping.columns})`)
+  }
+  for (let i = 0; i < mapping.bands.length; i += 1) {
+    const band = mapping.bands[i]
+    if (
+      typeof band?.column !== 'number' ||
+      typeof band?.entityStart !== 'number' ||
+      typeof band?.entityCount !== 'number' ||
+      band.entityCount < 1
+    ) {
+      errors.push(`bande ${i} invalide`)
+    }
+  }
+  return errors
+}
+
+/** @deprecated Prefer getEntityIdStart() — value can change after setWallMapping. */
+export const ENTITY_ID_START = DEFAULT_WALL_MAPPING.bands[0]?.entityStart ?? 100
+
+export function getEntityIdStart(): number {
+  return wallMapping.bands[0]?.entityStart ?? 100
+}
+
 const VISIBLE_ROWS = 128
 const COLUMNS_PER_PHYSICAL_BAND = 2
 const ASCENDING_LAST_VISIBLE_OFFSET = 128
