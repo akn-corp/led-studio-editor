@@ -66,10 +66,12 @@ function applyTextToGrid(
   )
 }
 
+const clamp255 = (value: number) => Math.min(255, Math.max(0, value))
+
 /**
- * Simplified fidelity by design: honors Fit/Crop (so the sampled region
- * matches the live preview), but Filter Preset/Brightness are preview-only
- * and don't affect the exported per-LED colors.
+ * Simplified fidelity by design: honors Fit/Crop/Brightness (so the sampled
+ * region and its exposure match the live preview), but Filter Preset stays
+ * preview-only and doesn't affect the exported per-LED colors.
  */
 function applyVideoToGrid(
   grid: ColorGrid,
@@ -120,6 +122,7 @@ function applyVideoToGrid(
   }
 
   const alpha = element.opacity ?? 1
+  const brightness = element.brightness ?? 1
 
   for (let row = 0; row < rows; row += 1) {
     for (let column = 0; column < columns; column += 1) {
@@ -141,9 +144,9 @@ function applyVideoToGrid(
       if (pixelAlpha === 0) continue // letterboxed area (fit: 'contain')
 
       grid[row][column] = {
-        r: Math.round(data[index] * alpha),
-        g: Math.round(data[index + 1] * alpha),
-        b: Math.round(data[index + 2] * alpha),
+        r: clamp255(Math.round(data[index] * brightness * alpha)),
+        g: clamp255(Math.round(data[index + 1] * brightness * alpha)),
+        b: clamp255(Math.round(data[index + 2] * brightness * alpha)),
       }
     }
   }
