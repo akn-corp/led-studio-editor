@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useSortable } from '@dnd-kit/react/sortable'
 import { Eye, EyeOff, Trash2, GripVertical } from 'lucide-react'
 import type { Element } from '@/engine'
 import { getElementKeyframeTimes, getPropertiesKeyframedAt } from '@/engine'
@@ -10,14 +11,17 @@ import { ElementIcon } from '@/components/editor/timeline/element-icon'
 import { TimelineClip } from '@/components/editor/timeline/timeline-clip'
 import { TimelineLaneRow } from '@/components/editor/timeline/timeline-lane-row'
 import { trackWidthFor } from '@/components/editor/timeline/timeline-scale'
+import { TIMELINE_ELEMENT_SORTABLE_GROUP } from '@/components/editor/timeline/timeline-reorder'
 
 function ElementTrackRow({
   element,
+  elementIndex,
   allElements,
   duration,
   pixelsPerSecond,
 }: {
   element: Element
+  elementIndex: number
   allElements: Element[]
   duration: number
   pixelsPerSecond: number
@@ -26,6 +30,11 @@ function ElementTrackRow({
   const { selectedElementId, select } = useSelection()
   const { currentTime, seek } = usePlayback()
   const [dragging, setDragging] = useState<{ originalTime: number; time: number } | null>(null)
+  const { ref, handleRef, isDragging } = useSortable({
+    id: element.id,
+    index: elementIndex,
+    group: TIMELINE_ELEMENT_SORTABLE_GROUP,
+  })
 
   const trackWidth = trackWidthFor(duration, pixelsPerSecond)
   const times = getElementKeyframeTimes(element)
@@ -42,11 +51,15 @@ function ElementTrackRow({
 
   return (
     <TimelineLaneRow
+      rootRef={ref}
       trackWidth={trackWidth}
-      className={cn(isSelected && 'bg-primary/5')}
+      className={cn(isSelected && 'bg-primary/5', isDragging && 'opacity-40')}
       label={
         <>
-          <GripVertical className="size-3 shrink-0 text-muted-foreground/50" />
+          <GripVertical
+            ref={handleRef}
+            className="size-3 shrink-0 cursor-grab text-muted-foreground/50 active:cursor-grabbing"
+          />
           <button
             type="button"
             aria-label={element.hidden ? 'Show element' : 'Hide element'}

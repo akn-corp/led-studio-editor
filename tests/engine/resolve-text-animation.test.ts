@@ -78,3 +78,22 @@ test('scale enter animation multiplies fontSize and keeps width/height in sync',
   expect(resolved.width).toBeGreaterThan(0)
   expect(resolved.height).toBeGreaterThan(0)
 })
+
+test('marqueeLeft continuously decreases x and marqueeRight is its mirror image', () => {
+  const left = makeText({ loopAnimation: 'marqueeLeft', duration: 20 })
+  const right = makeText({ loopAnimation: 'marqueeRight', duration: 20 })
+  const leftEarly = applyTextAnimation(left, 1).x
+  const leftLater = applyTextAnimation(left, 2).x
+  expect(leftLater).toBeLessThan(leftEarly)
+  expect(applyTextAnimation(right, 1).x).toBeCloseTo(-leftEarly, 5)
+  expect(applyTextAnimation(right, 2).x).toBeCloseTo(-leftLater, 5)
+})
+
+test('marquee wraps around instead of drifting off forever', () => {
+  const element = makeText({ loopAnimation: 'marqueeLeft', width: 5, duration: 60 })
+  // wrap = width * 12 = 60 grid units, at 6 units/sec that's a 10s cycle —
+  // x should return arbitrarily close to its starting offset every 10s.
+  const atStart = applyTextAnimation(element, 20.001).x
+  const oneCycleLater = applyTextAnimation(element, 30.001).x
+  expect(oneCycleLater).toBeCloseTo(atStart, 5)
+})

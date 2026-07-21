@@ -8,6 +8,8 @@ const BOUNCE_LOOP_SPEED = 5 // radians / second
 const BOUNCE_LOOP_AMPLITUDE = 1.2 // grid units
 const PULSE_LOOP_SPEED = 4 // radians / second
 const PULSE_LOOP_AMPLITUDE = 0.08 // fraction of fontSize
+const MARQUEE_SPEED = 6 // grid units / second
+const MARQUEE_WRAP_MULTIPLIER = 12 // multiples of the element's own width traveled before the scroll resets
 
 // Simplified easeOutBounce, used only by the `bounce` preset's enter curve.
 function easeOutBounce(t: number): number {
@@ -101,6 +103,30 @@ const presets: AnimationPreset[] = [
     enter: (p, element): PresetDelta => {
       const count = Math.round(element.text.length * clamp01(p))
       return { text: element.text.slice(0, count) }
+    },
+  },
+  {
+    id: 'marqueeLeft',
+    label: 'Marquee Left',
+    supportsLoop: true,
+    // About to scroll left, so it enters by sliding in from the right —
+    // same curve as `slideRight`'s enter.
+    enter: (p): PresetDelta => ({ x: -(1 - clamp01(p)) * SLIDE_DISTANCE, opacityFactor: clamp01(p) }),
+    loop: (elapsed, element): PresetDelta => {
+      const wrap = Math.max(element.width * MARQUEE_WRAP_MULTIPLIER, MARQUEE_SPEED)
+      return { x: -((elapsed * MARQUEE_SPEED) % wrap) }
+    },
+  },
+  {
+    id: 'marqueeRight',
+    label: 'Marquee Right',
+    supportsLoop: true,
+    // About to scroll right, so it enters by sliding in from the left —
+    // same curve as `slideLeft`'s enter.
+    enter: (p): PresetDelta => ({ x: (1 - clamp01(p)) * SLIDE_DISTANCE, opacityFactor: clamp01(p) }),
+    loop: (elapsed, element): PresetDelta => {
+      const wrap = Math.max(element.width * MARQUEE_WRAP_MULTIPLIER, MARQUEE_SPEED)
+      return { x: (elapsed * MARQUEE_SPEED) % wrap }
     },
   },
 ]

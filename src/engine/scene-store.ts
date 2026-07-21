@@ -6,6 +6,7 @@ import { MoveKeyframeCommand } from '@/engine/commands/move-keyframe-command'
 import { RemoveElementCommand } from '@/engine/commands/remove-element-command'
 import { RemoveKeyframeCommand } from '@/engine/commands/remove-keyframe-command'
 import { RemoveVideoAssetCommand } from '@/engine/commands/remove-video-asset-command'
+import { ReorderElementCommand } from '@/engine/commands/reorder-element-command'
 import { ResizeEnvironmentCommand } from '@/engine/commands/resize-environment-command'
 import { SetAudioCommand } from '@/engine/commands/set-audio-command'
 import { SetElementMetaCommand } from '@/engine/commands/set-element-meta-command'
@@ -88,6 +89,10 @@ function createSceneStore() {
     },
     removeElement: (elementId: string) => {
       history.execute(new RemoveElementCommand(elementId))
+    },
+    /** Moves `elementId` to occupy `targetElementId`'s position in the timeline's track order. */
+    reorderElement: (elementId: string, targetElementId: string) => {
+      history.execute(new ReorderElementCommand(elementId, targetElementId))
     },
     setElementMeta: (elementId: string, changes: ElementMeta) => {
       history.execute(new SetElementMetaCommand(elementId, changes))

@@ -8,6 +8,7 @@ function TimelineLaneRow({
   className,
   laneClassName,
   onLabelClick,
+  rootRef,
   children,
 }: {
   label: ReactNode
@@ -15,10 +16,12 @@ function TimelineLaneRow({
   className?: string
   laneClassName?: string
   onLabelClick?: () => void
+  rootRef?: (node: HTMLDivElement | null) => void
   children: ReactNode
 }) {
   return (
     <div
+      ref={rootRef}
       className={cn('relative flex h-10 shrink-0 items-center border-b border-border/30', className)}
       style={{ width: trackWidth }}
     >

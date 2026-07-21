@@ -101,10 +101,11 @@ function EditorTimeline() {
           <div className="relative flex min-w-full flex-col" style={{ width: trackWidth }}>
             <TimelineRuler duration={duration} pixelsPerSecond={pixelsPerSecond} onSeek={seek} />
             <AudioTrackRow duration={duration} pixelsPerSecond={pixelsPerSecond} />
-            {project.elements.map((element) => (
+            {project.elements.map((element, elementIndex) => (
               <ElementTrackRow
                 key={element.id}
                 element={element}
+                elementIndex={elementIndex}
                 allElements={project.elements}
                 duration={duration}
                 pixelsPerSecond={pixelsPerSecond}

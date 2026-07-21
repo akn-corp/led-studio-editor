@@ -15,6 +15,7 @@ function useScene() {
     updateElement: sceneStore.updateElement,
     patchElement: sceneStore.patchElement,
     removeElement: sceneStore.removeElement,
+    reorderElement: sceneStore.reorderElement,
     duplicateElement: sceneStore.duplicateElement,
     setElementMeta: sceneStore.setElementMeta,
     patchElementMeta: sceneStore.patchElementMeta,

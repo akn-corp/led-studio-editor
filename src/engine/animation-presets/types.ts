@@ -12,6 +12,8 @@ export type AnimationPresetId =
   | 'wobble'
   | 'pulse'
   | 'typing'
+  | 'marqueeLeft'
+  | 'marqueeRight'
 
 export interface PresetDelta {
   x?: number
