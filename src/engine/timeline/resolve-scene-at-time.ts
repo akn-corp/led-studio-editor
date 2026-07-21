@@ -1,5 +1,6 @@
 import { applyEasing } from '@/engine/interpolation/easing'
 import { interpolateColor, interpolateNumeric } from '@/engine/interpolation/interpolate-value'
+import { applyShapeAnimation } from '@/engine/animation-presets/resolve-shape-animation'
 import { applyTextAnimation } from '@/engine/animation-presets/resolve-text-animation'
 import { applyVideoAnimation } from '@/engine/animation-presets/resolve-video-animation'
 import { ANIMATABLE_PROPERTY_KIND, type AnimatableProperty, type Keyframe } from '@/engine/model/keyframe'
@@ -60,6 +61,8 @@ function resolveElementAtTime(element: Element, t: number): Element {
     resolved = applyTextAnimation(resolved, t)
   } else if (resolved.type === 'video') {
     resolved = applyVideoAnimation(resolved, t)
+  } else if (resolved.type === 'shape') {
+    resolved = applyShapeAnimation(resolved, t)
   }
 
   return resolved

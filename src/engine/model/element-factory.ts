@@ -1,22 +1,24 @@
 import type { Environment } from '@/engine/model/environment'
-import type { SquareElement, TextElement, VideoElement } from '@/engine/model/element'
+import type { ShapeElement, TextElement, VideoElement } from '@/engine/model/element'
+import type { ShapeKind } from '@/engine/shapes/shape-registry'
 import type { VideoAsset } from '@/engine/model/video-asset'
 import { measureBitmapText } from '@/engine/bitmap-font'
 
-const SQUARE_SIZE = { width: 4, height: 4 }
+const SHAPE_SIZE = { width: 4, height: 4 }
 const DEFAULT_TEXT = 'HELLO'
 const DEFAULT_FONT_SIZE = 1
 const DEFAULT_CLIP_DURATION = 5
 const VIDEO_FOOTPRINT_RATIO = 0.6
 
-function createSquareElement(environment: Environment, startTime = 0): SquareElement {
+function createShapeElement(shapeKind: ShapeKind, environment: Environment, startTime = 0): ShapeElement {
   return {
     id: crypto.randomUUID(),
-    type: 'square',
-    x: (environment.columns - SQUARE_SIZE.width) / 2,
-    y: (environment.rows - SQUARE_SIZE.height) / 2,
-    width: SQUARE_SIZE.width,
-    height: SQUARE_SIZE.height,
+    type: 'shape',
+    shapeKind,
+    x: (environment.columns - SHAPE_SIZE.width) / 2,
+    y: (environment.rows - SHAPE_SIZE.height) / 2,
+    width: SHAPE_SIZE.width,
+    height: SHAPE_SIZE.height,
     rotation: 0,
     opacity: 1,
     fill: '#013d9d',
@@ -24,6 +26,9 @@ function createSquareElement(environment: Environment, startTime = 0): SquareEle
     startTime,
     duration: DEFAULT_CLIP_DURATION,
     hidden: false,
+    enterAnimation: null,
+    loopAnimation: null,
+    exitAnimation: null,
   }
 }
 
@@ -89,4 +94,4 @@ function createVideoElement(environment: Environment, startTime: number, asset: 
   }
 }
 
-export { createSquareElement, createTextElement, createVideoElement }
+export { createShapeElement, createTextElement, createVideoElement }

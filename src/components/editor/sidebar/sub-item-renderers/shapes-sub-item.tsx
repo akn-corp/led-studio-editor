@@ -5,6 +5,7 @@ import { useSubItemDrag } from '@/components/editor/sidebar/sub-item-renderers/u
 
 function ShapesSubItem({ subItem }: SubItemRendererProps) {
   const { ref, isDraggable, isDragging } = useSubItemDrag(subItem)
+  const Icon = subItem.icon
 
   return (
     <Tooltip>
@@ -18,7 +19,7 @@ function ShapesSubItem({ subItem }: SubItemRendererProps) {
             disabled={!isDraggable}
             style={{ opacity: isDragging ? 0.5 : 1 }}
           >
-            <div className="size-8 rounded-sm border border-foreground" />
+            {Icon ? <Icon className="size-6" /> : <div className="size-8 rounded-sm border border-foreground" />}
           </Button>
         }
       />

@@ -7,13 +7,15 @@ export type {
   Element,
   ElementChanges,
   ElementMeta,
-  SquareElement,
+  ShapeElement,
   TextElement,
   VideoElement,
   VideoCropRect,
 } from '@/engine/model/element'
 export type { VideoAsset } from '@/engine/model/video-asset'
-export { createSquareElement, createTextElement, createVideoElement } from '@/engine/model/element-factory'
+export { createShapeElement, createTextElement, createVideoElement } from '@/engine/model/element-factory'
+export type { ShapeKind, ShapeDefinition } from '@/engine/shapes/shape-registry'
+export { getShapeDefinition, listShapeKinds } from '@/engine/shapes/shape-registry'
 export type { FitMode } from '@/engine/fit-transform'
 export { computeFitTransform } from '@/engine/fit-transform'
 export { isPointInElement } from '@/engine/coverage'
@@ -48,3 +50,9 @@ export type {
   VideoPresetDelta,
 } from '@/engine/animation-presets/video-types'
 export { getVideoAnimationPreset, listVideoAnimationPresets } from '@/engine/animation-presets/video-presets'
+export type {
+  ShapeAnimationPreset,
+  ShapeAnimationPresetId,
+  ShapePresetDelta,
+} from '@/engine/animation-presets/shape-types'
+export { getShapeAnimationPreset, listShapeAnimationPresets } from '@/engine/animation-presets/shape-presets'

@@ -2,7 +2,7 @@ import { isPointInElement } from '@/engine/coverage'
 import { paintBitmapTextToGrid } from '@/engine/bitmap-font'
 import { computeFitTransform } from '@/engine/fit-transform'
 import { hexToRgb, type Rgb } from '@/engine/rasterize-leds'
-import type { SquareElement, TextElement, VideoElement } from '@/engine/model/element'
+import type { ShapeElement, TextElement, VideoElement } from '@/engine/model/element'
 import type { Project } from '@/engine/model/project'
 
 export type ColorGrid = (Rgb | null)[][]
@@ -16,11 +16,11 @@ const MAX_VIDEO_SAMPLE_SIZE = 64
 // element per composeColorGrid call, not one per LED cell.
 let sampleCanvas: HTMLCanvasElement | null = null
 
-function applySquareToGrid(
+function applyShapeToGrid(
   grid: ColorGrid,
   rows: number,
   columns: number,
-  element: SquareElement,
+  element: ShapeElement,
 ): void {
   const base = hexToRgb(element.fill)
   const alpha = element.opacity ?? 1
@@ -159,8 +159,8 @@ function composeColorGrid(project: Project, options: ComposeColorGridOptions = {
   )
 
   for (const element of project.elements) {
-    if (element.type === 'square') {
-      applySquareToGrid(grid, rows, columns, element)
+    if (element.type === 'shape') {
+      applyShapeToGrid(grid, rows, columns, element)
     } else if (element.type === 'text') {
       applyTextToGrid(grid, rows, columns, element)
     } else if (element.type === 'video') {

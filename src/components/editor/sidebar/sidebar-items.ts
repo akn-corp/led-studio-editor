@@ -10,8 +10,9 @@ import {
   Type,
   Upload,
 } from 'lucide-react'
-import { createSquareElement, createTextElement } from '@/engine'
+import { createShapeElement, createTextElement, listShapeKinds } from '@/engine'
 import type { Element, Environment } from '@/engine'
+import { SHAPE_ICONS } from '@/renderer/shapes/shape-icons'
 
 export interface SidebarSubItem {
   label: string
@@ -56,7 +57,12 @@ export const sidebarItems: SidebarItem[] = [
   {
     label: 'Shapes',
     icon: Shapes,
-    subItems: [{ label: 'Square', create: createSquareElement }],
+    subItems: listShapeKinds().map((shape) => ({
+      label: shape.label,
+      icon: SHAPE_ICONS[shape.kind],
+      create: (environment: Environment, startTime?: number) =>
+        createShapeElement(shape.kind, environment, startTime),
+    })),
   },
   { label: 'Stickers', icon: Sticker },
 ]

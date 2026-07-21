@@ -1,7 +1,9 @@
 import type { KeyframeTracks } from '@/engine/model/keyframe'
 import type { AnimationPresetId } from '@/engine/animation-presets/types'
 import type { VideoAnimationPresetId } from '@/engine/animation-presets/video-types'
+import type { ShapeAnimationPresetId } from '@/engine/animation-presets/shape-types'
 import type { FitMode } from '@/engine/fit-transform'
+import type { ShapeKind } from '@/engine/shapes/shape-registry'
 
 interface BaseElement {
   id: string
@@ -20,9 +22,13 @@ interface BaseElement {
   hidden: boolean
 }
 
-export interface SquareElement extends BaseElement {
-  type: 'square'
+export interface ShapeElement extends BaseElement {
+  type: 'shape'
+  shapeKind: ShapeKind
   fill: string
+  enterAnimation: ShapeAnimationPresetId | null
+  loopAnimation: ShapeAnimationPresetId | null
+  exitAnimation: ShapeAnimationPresetId | null
 }
 
 export interface TextElement extends BaseElement {
@@ -62,30 +68,34 @@ export interface VideoElement extends BaseElement {
   exitAnimation: VideoAnimationPresetId | null
 }
 
-export type Element = SquareElement | TextElement | VideoElement
+export type Element = ShapeElement | TextElement | VideoElement
 
 /**
  * "Structural" fields — not keyframeable, mutated via SetElementMetaCommand
  * instead of UpdateElementCommand/AddKeyframeCommand. `enterAnimation`/
- * `exitAnimation` are widened to accept either registry's ids explicitly
- * (rather than via Pick, which would intersect Text's and Video's distinct
- * id unions down to only their overlapping literals).
+ * `loopAnimation`/`exitAnimation` are widened to accept whichever registries'
+ * ids are actually in play (rather than via Pick, which would intersect
+ * Shape's/Text's/Video's distinct id unions down to only their overlapping
+ * literals).
  */
 export type ElementMeta = Partial<
-  Pick<SquareElement, 'startTime' | 'duration' | 'hidden'> &
-    Pick<TextElement, 'backgroundColor' | 'loopAnimation'> &
+  Pick<ShapeElement, 'startTime' | 'duration' | 'hidden'> &
+    Pick<TextElement, 'backgroundColor'> &
     Pick<
       VideoElement,
       'volume' | 'muted' | 'playbackSpeed' | 'fit' | 'crop' | 'filterPreset' | 'borderRadius' | 'brightness'
     >
 > & {
-  enterAnimation?: AnimationPresetId | VideoAnimationPresetId | null
-  exitAnimation?: AnimationPresetId | VideoAnimationPresetId | null
+  enterAnimation?: AnimationPresetId | VideoAnimationPresetId | ShapeAnimationPresetId | null
+  loopAnimation?: AnimationPresetId | ShapeAnimationPresetId | null
+  exitAnimation?: AnimationPresetId | VideoAnimationPresetId | ShapeAnimationPresetId | null
 }
 
-// enterAnimation/exitAnimation are meta-only (see ElementMeta above) — excluded
-// here too, for the same reason: Text's and Video's id unions would otherwise
-// collide down to only their overlapping literals.
-export type ElementChanges = Partial<Omit<SquareElement, 'id' | 'type'>> &
+// enterAnimation/loopAnimation/exitAnimation are meta-only (see ElementMeta
+// above) — excluded here too, for the same reason: Shape's/Text's/Video's id
+// unions would otherwise collide down to only their overlapping literals.
+export type ElementChanges = Partial<
+  Omit<ShapeElement, 'id' | 'type' | 'enterAnimation' | 'loopAnimation' | 'exitAnimation'>
+> &
   Partial<Omit<TextElement, 'id' | 'type' | 'enterAnimation' | 'loopAnimation' | 'exitAnimation'>> &
   Partial<Omit<VideoElement, 'id' | 'type' | 'enterAnimation' | 'exitAnimation'>>

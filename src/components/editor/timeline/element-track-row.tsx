@@ -1,16 +1,15 @@
 import { useState } from 'react'
-import { Eye, EyeOff, Square, Trash2, Type, Video, GripVertical } from 'lucide-react'
+import { Eye, EyeOff, Trash2, GripVertical } from 'lucide-react'
 import type { Element } from '@/engine'
 import { getElementKeyframeTimes, getPropertiesKeyframedAt } from '@/engine'
 import { cn } from '@/lib/utils'
 import { useScene } from '@/state/use-scene'
 import { useSelection } from '@/state/use-selection'
 import { usePlayback } from '@/state/use-playback'
+import { ElementIcon } from '@/components/editor/timeline/element-icon'
 import { TimelineClip } from '@/components/editor/timeline/timeline-clip'
 import { TimelineLaneRow } from '@/components/editor/timeline/timeline-lane-row'
 import { trackWidthFor } from '@/components/editor/timeline/timeline-scale'
-
-const ELEMENT_ICON = { square: Square, text: Type, video: Video } as const
 
 function ElementTrackRow({
   element,
@@ -30,7 +29,6 @@ function ElementTrackRow({
 
   const trackWidth = trackWidthFor(duration, pixelsPerSecond)
   const times = getElementKeyframeTimes(element)
-  const Icon = ELEMENT_ICON[element.type]
   const isSelected = selectedElementId === element.id
 
   const commitDrag = () => {
@@ -60,7 +58,7 @@ function ElementTrackRow({
           >
             {element.hidden ? <EyeOff className="size-3.5" /> : <Eye className="size-3.5" />}
           </button>
-          <Icon className="size-3.5 shrink-0" />
+          <ElementIcon element={element} className="size-3.5 shrink-0" />
           <button
             type="button"
             aria-label="Delete element"

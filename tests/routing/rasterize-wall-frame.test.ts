@@ -2,9 +2,9 @@ import { expect, test } from 'vitest'
 import { rasterizeWallFrame } from '../../src/routing/rasterize-wall-frame.ts'
 import { entityIdForCell } from '../../src/routing/wall-mapping.ts'
 import type { Project } from '../../src/engine/model/project.ts'
-import type { SquareElement } from '../../src/engine/model/element.ts'
+import type { ShapeElement } from '../../src/engine/model/element.ts'
 
-function makeProject(element: SquareElement): Project {
+function makeProject(element: ShapeElement): Project {
   return {
     id: 'p',
     name: 'p',
@@ -15,10 +15,11 @@ function makeProject(element: SquareElement): Project {
   }
 }
 
-function makeSquare(overrides: Partial<SquareElement> = {}): SquareElement {
+function makeSquare(overrides: Partial<ShapeElement> = {}): ShapeElement {
   return {
     id: 'square-1',
-    type: 'square',
+    type: 'shape',
+    shapeKind: 'square',
     x: 0,
     y: 0,
     width: 1,
@@ -26,6 +27,9 @@ function makeSquare(overrides: Partial<SquareElement> = {}): SquareElement {
     rotation: 0,
     opacity: 1,
     fill: '#ff0000',
+    enterAnimation: null,
+    loopAnimation: null,
+    exitAnimation: null,
     keyframes: {},
     startTime: 0,
     duration: 10,

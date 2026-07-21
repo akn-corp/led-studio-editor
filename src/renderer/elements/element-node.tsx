@@ -1,6 +1,6 @@
 import type Konva from 'konva'
 import type { Element, ElementChanges } from '@/engine'
-import { SquareNode } from '@/renderer/elements/square-node'
+import { ShapeNode } from '@/renderer/elements/shape-node'
 import { TextNode } from '@/renderer/elements/text-node'
 import { VideoNode } from '@/renderer/elements/video-node'
 
@@ -24,9 +24,9 @@ function ElementNode({
   registerNode,
 }: ElementNodeProps) {
   switch (element.type) {
-    case 'square':
+    case 'shape':
       return (
-        <SquareNode
+        <ShapeNode
           element={element}
           cellSize={cellSize}
           showAuthoring={showAuthoring}

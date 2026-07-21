@@ -1,12 +1,13 @@
 import { expect, test } from 'vitest'
 import { resolveElementAtTime, resolveSceneAtTime } from '@/engine/timeline/resolve-scene-at-time'
 import type { Project } from '@/engine/model/project'
-import type { SquareElement } from '@/engine/model/element'
+import type { ShapeElement } from '@/engine/model/element'
 
-function makeSquare(overrides: Partial<SquareElement> = {}): SquareElement {
+function makeSquare(overrides: Partial<ShapeElement> = {}): ShapeElement {
   return {
     id: 'square-1',
-    type: 'square',
+    type: 'shape',
+    shapeKind: 'square',
     x: 0,
     y: 0,
     width: 4,
@@ -14,6 +15,9 @@ function makeSquare(overrides: Partial<SquareElement> = {}): SquareElement {
     rotation: 0,
     opacity: 1,
     fill: '#000000',
+    enterAnimation: null,
+    loopAnimation: null,
+    exitAnimation: null,
     keyframes: {},
     startTime: 0,
     duration: 10,
@@ -22,7 +26,7 @@ function makeSquare(overrides: Partial<SquareElement> = {}): SquareElement {
   }
 }
 
-function makeProject(elements: SquareElement[]): Project {
+function makeProject(elements: ShapeElement[]): Project {
   return {
     id: 'p',
     name: 'p',
