@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Slider } from '@/components/ui/slider'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { AnimationSpeedControl } from '@/components/editor/inspector/animation-speed-control'
 import { KeyframeToggle } from '@/components/editor/inspector/keyframe-toggle'
 import { PositionGrid } from '@/components/editor/inspector/position-grid'
 import { VideoAnimationPresetPicker } from '@/components/editor/inspector/video-animation-preset-picker'
@@ -148,6 +149,11 @@ function VideoInspector({
               </Select>
             </div>
           </SectionCard>
+
+          <AnimationSpeedControl
+            value={baseElement.animationSpeed}
+            onChange={(speed) => setElementMeta(baseElement.id, { animationSpeed: speed })}
+          />
 
           <VideoAnimationSection
             title="Enter Animations"

@@ -18,6 +18,7 @@ function makeShape(overrides: Partial<ShapeElement> = {}): ShapeElement {
     startTime: 0,
     duration: 4,
     hidden: false,
+    animationSpeed: 1,
     enterAnimation: null,
     loopAnimation: null,
     exitAnimation: null,
@@ -81,4 +82,31 @@ test('enter and loop compose together when both are set', () => {
   const resolved = applyShapeAnimation(element, 0.25)
   expect(resolved.opacity).toBeCloseTo(0.5, 5)
   expect(resolved.rotation).toBeGreaterThan(0)
+})
+
+test('animationSpeed scales the enter window — 2x speed finishes entering in half the time', () => {
+  const normal = makeShape({ enterAnimation: 'fade', animationSpeed: 1 })
+  const fast = makeShape({ enterAnimation: 'fade', animationSpeed: 2 })
+  expect(applyShapeAnimation(normal, 0.25).opacity).toBeCloseTo(0.5, 5)
+  expect(applyShapeAnimation(fast, 0.25).opacity).toBeCloseTo(1, 5)
+})
+
+test('animationSpeed slows the enter window below 1x', () => {
+  const slow = makeShape({ enterAnimation: 'fade', animationSpeed: 0.5, duration: 4 })
+  // At 0.5x speed the 0.5s enter window stretches to 1s, so 0.25s in is only halfway.
+  expect(applyShapeAnimation(slow, 0.25).opacity).toBeCloseTo(0.25, 5)
+})
+
+test('animationSpeed never exceeds half the clip duration, even at very slow speeds', () => {
+  const element = makeShape({ enterAnimation: 'fade', animationSpeed: 0.1, duration: 1 })
+  // 0.1x speed would stretch the 0.5s window to 5s, but it's capped at duration/2 = 0.5s.
+  expect(applyShapeAnimation(element, 0.5).opacity).toBeCloseTo(1, 5)
+})
+
+test('animationSpeed scales the loop rate — 2x speed doubles the spin rate', () => {
+  const normal = makeShape({ loopAnimation: 'spin', animationSpeed: 1, duration: 10 })
+  const fast = makeShape({ loopAnimation: 'spin', animationSpeed: 2, duration: 10 })
+  const normalRotation = applyShapeAnimation(normal, 1).rotation
+  const fastRotation = applyShapeAnimation(fast, 1).rotation
+  expect(fastRotation).toBeCloseTo(normalRotation * 2, 5)
 })

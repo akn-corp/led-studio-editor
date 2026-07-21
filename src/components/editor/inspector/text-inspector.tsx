@@ -7,6 +7,7 @@ import { Slider } from '@/components/ui/slider'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Textarea } from '@/components/ui/textarea'
 import { AnimationPresetPicker } from '@/components/editor/inspector/animation-preset-picker'
+import { AnimationSpeedControl } from '@/components/editor/inspector/animation-speed-control'
 import { KeyframeToggle } from '@/components/editor/inspector/keyframe-toggle'
 import { PositionGrid } from '@/components/editor/inspector/position-grid'
 import {
@@ -61,6 +62,10 @@ function TextInspector({
         </TabsList>
 
         <TabsContent value="settings" className="flex flex-col gap-2 pt-1">
+          <AnimationSpeedControl
+            value={baseElement.animationSpeed}
+            onChange={(speed) => setElementMeta(baseElement.id, { animationSpeed: speed })}
+          />
           <AnimationSection
             title="Enter Animations"
             value={baseElement.enterAnimation}

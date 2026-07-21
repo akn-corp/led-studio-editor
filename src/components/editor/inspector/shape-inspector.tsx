@@ -3,6 +3,7 @@ import { ChevronDown } from 'lucide-react'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { AnimationSpeedControl } from '@/components/editor/inspector/animation-speed-control'
 import { KeyframeToggle } from '@/components/editor/inspector/keyframe-toggle'
 import { ShapeAnimationPresetPicker } from '@/components/editor/inspector/shape-animation-preset-picker'
 import {
@@ -113,6 +114,10 @@ function ShapeInspector({
       </Field>
 
       <div className="flex flex-col gap-2">
+        <AnimationSpeedControl
+          value={baseElement.animationSpeed}
+          onChange={(speed) => setElementMeta(baseElement.id, { animationSpeed: speed })}
+        />
         <AnimationSection
           title="Enter Animations"
           value={baseElement.enterAnimation}

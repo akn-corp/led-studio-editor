@@ -20,6 +20,8 @@ interface BaseElement {
   duration: number
   /** Timeline eye-icon toggle — hidden clips are excluded from resolveSceneAtTime without being deleted. */
   hidden: boolean
+  /** Multiplier applied to Enter/Loop/Exit preset animation timing — 1 = normal speed. */
+  animationSpeed: number
 }
 
 export interface ShapeElement extends BaseElement {
@@ -79,7 +81,7 @@ export type Element = ShapeElement | TextElement | VideoElement
  * literals).
  */
 export type ElementMeta = Partial<
-  Pick<ShapeElement, 'startTime' | 'duration' | 'hidden'> &
+  Pick<ShapeElement, 'startTime' | 'duration' | 'hidden' | 'animationSpeed'> &
     Pick<TextElement, 'backgroundColor'> &
     Pick<
       VideoElement,

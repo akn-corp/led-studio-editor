@@ -39,11 +39,12 @@ function applyDelta(element: ShapeElement, delta: ShapePresetDelta): ShapeElemen
 function applyShapeAnimation(element: ShapeElement, t: number): ShapeElement {
   const start = element.startTime
   const end = element.startTime + element.duration
+  const speed = element.animationSpeed > 0 ? element.animationSpeed : 1
   let delta: ShapePresetDelta = {}
 
   const enterPreset = getShapeAnimationPreset(element.enterAnimation)
   if (enterPreset) {
-    const effectiveDuration = Math.min(ENTER_DURATION, element.duration / 2)
+    const effectiveDuration = Math.min(ENTER_DURATION / speed, element.duration / 2)
     if (effectiveDuration > 0 && t < start + effectiveDuration) {
       const progress = clamp01((t - start) / effectiveDuration)
       delta = mergeDelta(delta, enterPreset.enter(progress, element))
@@ -52,7 +53,7 @@ function applyShapeAnimation(element: ShapeElement, t: number): ShapeElement {
 
   const exitPreset = getShapeAnimationPreset(element.exitAnimation)
   if (exitPreset) {
-    const effectiveDuration = Math.min(EXIT_DURATION, element.duration / 2)
+    const effectiveDuration = Math.min(EXIT_DURATION / speed, element.duration / 2)
     if (effectiveDuration > 0 && t > end - effectiveDuration) {
       const progress = clamp01((end - t) / effectiveDuration)
       delta = mergeDelta(delta, exitPreset.enter(progress, element))
@@ -61,7 +62,7 @@ function applyShapeAnimation(element: ShapeElement, t: number): ShapeElement {
 
   const loopPreset = getShapeAnimationPreset(element.loopAnimation)
   if (loopPreset?.loop) {
-    delta = mergeDelta(delta, loopPreset.loop(t - start, element))
+    delta = mergeDelta(delta, loopPreset.loop((t - start) * speed, element))
   }
 
   return applyDelta(element, delta)

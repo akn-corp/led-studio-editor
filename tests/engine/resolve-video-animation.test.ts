@@ -16,6 +16,7 @@ function makeVideo(overrides: Partial<VideoElement> = {}): VideoElement {
     startTime: 0,
     duration: 4,
     hidden: false,
+    animationSpeed: 1,
     fileName: 'clip.mp4',
     filePath: '/tmp/clip.mp4',
     sourceDuration: 10,

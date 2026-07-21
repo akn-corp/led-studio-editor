@@ -19,6 +19,7 @@ function makeText(overrides: Partial<TextElement> = {}): TextElement {
     startTime: 0,
     duration: 4,
     hidden: false,
+    animationSpeed: 1,
     backgroundColor: null,
     enterAnimation: null,
     loopAnimation: null,

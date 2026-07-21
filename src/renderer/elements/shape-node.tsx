@@ -10,8 +10,8 @@ import {
 } from '@/engine/shapes/shape-geometry'
 import { AUTHORING_GHOST_OPACITY } from '@/renderer/elements/authoring-constants'
 import {
-  commitTransformFromNode,
-  gridPositionFromNode,
+  commitCenteredTransformFromNode,
+  gridPositionFromCenteredNode,
 } from '@/renderer/elements/element-transform'
 
 function tracePolygon(context: Konva.Context, vertices: Point[]) {
@@ -77,8 +77,10 @@ function ShapeNode({
   return (
     <Shape
       ref={registerNode}
-      x={element.x * cellSize}
-      y={element.y * cellSize}
+      x={(element.x + element.width / 2) * cellSize}
+      y={(element.y + element.height / 2) * cellSize}
+      offsetX={(element.width * cellSize) / 2}
+      offsetY={(element.height * cellSize) / 2}
       width={element.width * cellSize}
       height={element.height * cellSize}
       rotation={element.rotation}
@@ -94,16 +96,16 @@ function ShapeNode({
       }}
       onDragStart={onSelect}
       onDragMove={(e) => {
-        onPatch(gridPositionFromNode(e.target, cellSize))
+        onPatch(gridPositionFromCenteredNode(e.target, cellSize, element.width, element.height))
       }}
       onDragEnd={(e) => {
-        onChange(gridPositionFromNode(e.target, cellSize))
+        onChange(gridPositionFromCenteredNode(e.target, cellSize, element.width, element.height))
       }}
       onTransformStart={() => {
         transformBaseRef.current = { width: element.width, height: element.height }
       }}
       onTransformEnd={(e) => {
-        onChange(commitTransformFromNode(e.target, cellSize, transformBaseRef.current))
+        onChange(commitCenteredTransformFromNode(e.target, cellSize, transformBaseRef.current))
       }}
       sceneFunc={(context, shape) => {
         traceShapePath(context, element.shapeKind, element.width * cellSize, element.height * cellSize)

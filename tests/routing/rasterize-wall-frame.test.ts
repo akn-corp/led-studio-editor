@@ -34,6 +34,7 @@ function makeSquare(overrides: Partial<ShapeElement> = {}): ShapeElement {
     startTime: 0,
     duration: 10,
     hidden: false,
+    animationSpeed: 1,
     ...overrides,
   }
 }
