@@ -2,7 +2,6 @@ export interface Environment {
   rows: number
   columns: number
   isSetted: boolean
-  isSetted: boolean
 }
 
 export const DEFAULT_ENVIRONMENT: Environment = {

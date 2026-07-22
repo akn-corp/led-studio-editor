@@ -1,13 +1,24 @@
 import { AddElementCommand } from '@/engine/commands/add-element-command'
+import { AddKeyframeCommand } from '@/engine/commands/add-keyframe-command'
+import { AddVideoAssetsCommand } from '@/engine/commands/add-video-assets-command'
 import { createHistoryManager } from '@/engine/commands/history-manager'
+import { MoveKeyframeCommand } from '@/engine/commands/move-keyframe-command'
 import { RemoveElementCommand } from '@/engine/commands/remove-element-command'
+import { RemoveKeyframeCommand } from '@/engine/commands/remove-keyframe-command'
+import { RemoveVideoAssetCommand } from '@/engine/commands/remove-video-asset-command'
+import { ReorderElementCommand } from '@/engine/commands/reorder-element-command'
 import { ResizeEnvironmentCommand } from '@/engine/commands/resize-environment-command'
+import { SetAudioCommand } from '@/engine/commands/set-audio-command'
+import { SetElementMetaCommand } from '@/engine/commands/set-element-meta-command'
 import { UpdateElementCommand } from '@/engine/commands/update-element-command'
 import { createEventBus } from '@/engine/events/event-bus'
+import type { AudioTrack } from '@/engine/model/audio'
 import { DEFAULT_ENVIRONMENT, type Environment } from '@/engine/model/environment'
-import type { Element, ElementChanges } from '@/engine/model/element'
+import type { Element, ElementChanges, ElementMeta } from '@/engine/model/element'
 import { resolveElementChanges } from '@/engine/model/element-changes'
+import type { AnimatableProperty, EasingType } from '@/engine/model/keyframe'
 import type { Project } from '@/engine/model/project'
+import type { VideoAsset } from '@/engine/model/video-asset'
 
 const DUPLICATE_OFFSET = 0.5
 
@@ -17,6 +28,8 @@ function createDefaultProject(): Project {
     name: 'Untitled Project',
     environment: { ...DEFAULT_ENVIRONMENT },
     elements: [],
+    audio: null,
+    videoAssets: [],
   }
 }
 
@@ -47,6 +60,17 @@ function createSceneStore() {
     setEnvironment: (environment: Partial<Environment>) => {
       history.execute(new ResizeEnvironmentCommand(environment))
     },
+    /** Pass `null` to clear the attached reference audio file. */
+    setAudio: (audio: AudioTrack | null) => {
+      history.execute(new SetAudioCommand(audio))
+    },
+    /** One undo step for a whole multi-file upload. */
+    addVideoAssets: (assets: VideoAsset[]) => {
+      history.execute(new AddVideoAssetsCommand(assets))
+    },
+    removeVideoAsset: (assetId: string) => {
+      history.execute(new RemoveVideoAssetCommand(assetId))
+    },
     addElement: (element: Element) => {
       history.execute(new AddElementCommand(element))
     },
@@ -66,6 +90,21 @@ function createSceneStore() {
     removeElement: (elementId: string) => {
       history.execute(new RemoveElementCommand(elementId))
     },
+    /** Moves `elementId` to occupy `targetElementId`'s position in the timeline's track order. */
+    reorderElement: (elementId: string, targetElementId: string) => {
+      history.execute(new ReorderElementCommand(elementId, targetElementId))
+    },
+    setElementMeta: (elementId: string, changes: ElementMeta) => {
+      history.execute(new SetElementMetaCommand(elementId, changes))
+    },
+    /** Live update without history — used while dragging/trimming a clip for real-time preview. */
+    patchElementMeta: (elementId: string, changes: ElementMeta) => {
+      const elements = project.elements.map((element) =>
+        element.id === elementId ? ({ ...element, ...changes } as Element) : element,
+      )
+      project = { ...project, elements }
+      events.emitSceneChanged()
+    },
     duplicateElement: (elementId: string): string | null => {
       const original = project.elements.find((element) => element.id === elementId)
       if (!original) return null
@@ -77,6 +116,31 @@ function createSceneStore() {
       }
       history.execute(new AddElementCommand(duplicate))
       return duplicate.id
+    },
+
+    addKeyframe: (
+      elementId: string,
+      property: AnimatableProperty,
+      time: number,
+      value: number | string,
+      easing?: EasingType,
+    ) => {
+      history.execute(new AddKeyframeCommand(elementId, property, time, value, easing))
+    },
+    /** Removes a single keyframe if `time` is given, otherwise clears the whole track. */
+    removeKeyframe: (elementId: string, property: AnimatableProperty, time?: number) => {
+      history.execute(new RemoveKeyframeCommand(elementId, property, time))
+    },
+    clearKeyframeTrack: (elementId: string, property: AnimatableProperty) => {
+      history.execute(new RemoveKeyframeCommand(elementId, property))
+    },
+    moveKeyframe: (
+      elementId: string,
+      property: AnimatableProperty,
+      fromTime: number,
+      toTime: number,
+    ) => {
+      history.execute(new MoveKeyframeCommand(elementId, property, fromTime, toTime))
     },
 
     undo: history.undo,

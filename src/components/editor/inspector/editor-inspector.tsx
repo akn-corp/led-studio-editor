@@ -1,15 +1,38 @@
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import { hasKeyframeTrack, resolveElementAtTime, type AnimatableProperty } from '@/engine'
+import { ShapeInspector } from '@/components/editor/inspector/shape-inspector'
+import { TextInspector } from '@/components/editor/inspector/text-inspector'
+import { VideoInspector } from '@/components/editor/inspector/video-inspector'
 import { roundTo } from '@/lib/utils'
+import { usePlayback } from '@/state/use-playback'
 import { useScene } from '@/state/use-scene'
 import { useSelection } from '@/state/use-selection'
 
 function EditorInspector() {
-  const { project, updateElement } = useScene()
+  const { project, updateElement, addKeyframe, clearKeyframeTrack, setElementMeta, patchElementMeta } =
+    useScene()
   const { selectedElementId } = useSelection()
-  const element = project.elements.find((candidate) => candidate.id === selectedElementId)
+  const { currentTime } = usePlayback()
+  const baseElement = project.elements.find((candidate) => candidate.id === selectedElementId)
 
-  if (!element) return null
+  if (!baseElement) return null
+
+  const element = resolveElementAtTime(baseElement, currentTime)
+
+  const writeProperty = (property: AnimatableProperty, value: number | string) => {
+    if (hasKeyframeTrack(baseElement, property)) {
+      addKeyframe(baseElement.id, property, currentTime, value)
+    } else {
+      updateElement(baseElement.id, { [property]: value })
+    }
+  }
+
+  const toggleTrack = (property: AnimatableProperty, currentValue: number | string) => {
+    if (hasKeyframeTrack(baseElement, property)) {
+      clearKeyframeTrack(baseElement.id, property)
+    } else {
+      addKeyframe(baseElement.id, property, currentTime, currentValue)
+    }
+  }
 
   const setNumber = (
     key: 'x' | 'y' | 'width' | 'height' | 'rotation' | 'opacity' | 'fontSize',
@@ -17,89 +40,60 @@ function EditorInspector() {
   ) => {
     const parsed = Number.parseFloat(value)
     if (Number.isNaN(parsed)) return
-    updateElement(element.id, { [key]: roundTo(parsed) })
+    writeProperty(key, roundTo(parsed))
   }
 
+  // element is derived from baseElement via resolveElementAtTime, which always
+  // preserves `.type` — narrowing on baseElement first, then element with its
+  // own guard, lets TS narrow both without a compound (&&) condition, which it
+  // can't carry past the block.
+  if (baseElement.type === 'text') {
+    if (element.type !== 'text') return null
+    return (
+      <TextInspector
+        element={element}
+        baseElement={baseElement}
+        environment={project.environment}
+        writeProperty={writeProperty}
+        toggleTrack={toggleTrack}
+        setNumber={setNumber}
+        updateElement={updateElement}
+        setElementMeta={setElementMeta}
+      />
+    )
+  }
+
+  if (baseElement.type === 'video') {
+    if (element.type !== 'video') return null
+    return (
+      <VideoInspector
+        element={element}
+        baseElement={baseElement}
+        environment={project.environment}
+        writeProperty={writeProperty}
+        toggleTrack={toggleTrack}
+        setNumber={setNumber}
+        updateElement={updateElement}
+        setElementMeta={setElementMeta}
+        patchElementMeta={patchElementMeta}
+      />
+    )
+  }
+
+  // Only Shape is left at this point (baseElement.type narrowed by elimination).
+  if (element.type !== 'shape') return null
+
   return (
-    <div className="pointer-events-auto flex h-full w-72 shrink-0 flex-col gap-4 overflow-y-auto border border-border/50 bg-background/70 p-4 shadow-lg ring-1 ring-foreground/5 backdrop-blur-xl backdrop-saturate-150 dark:ring-foreground/10">
-      <h2 className="text-sm font-semibold capitalize">{element.type}</h2>
-
-      <div className="grid grid-cols-2 gap-3">
-        <Field label="X">
-          <Input type="number" value={element.x} onChange={(e) => setNumber('x', e.target.value)} />
-        </Field>
-        <Field label="Y">
-          <Input type="number" value={element.y} onChange={(e) => setNumber('y', e.target.value)} />
-        </Field>
-        <Field label="Width">
-          <Input
-            type="number"
-            value={element.width}
-            onChange={(e) => setNumber('width', e.target.value)}
-          />
-        </Field>
-        <Field label="Height">
-          <Input
-            type="number"
-            value={element.height}
-            onChange={(e) => setNumber('height', e.target.value)}
-          />
-        </Field>
-        <Field label="Rotation">
-          <Input
-            type="number"
-            value={element.rotation}
-            onChange={(e) => setNumber('rotation', e.target.value)}
-          />
-        </Field>
-        <Field label="Opacity">
-          <Input
-            type="number"
-            min={0}
-            max={1}
-            step={0.1}
-            value={element.opacity}
-            onChange={(e) => setNumber('opacity', e.target.value)}
-          />
-        </Field>
-      </div>
-
-      <Field label="Fill">
-        <Input
-          type="color"
-          value={element.fill}
-          onChange={(e) => updateElement(element.id, { fill: e.target.value })}
-          className="h-8 w-full p-1"
-        />
-      </Field>
-
-      {element.type === 'text' && (
-        <>
-          <Field label="Text">
-            <Input
-              value={element.text}
-              onChange={(e) => updateElement(element.id, { text: e.target.value })}
-            />
-          </Field>
-          <Field label="Font size">
-            <Input
-              type="number"
-              value={element.fontSize}
-              onChange={(e) => setNumber('fontSize', e.target.value)}
-            />
-          </Field>
-        </>
-      )}
-    </div>
-  )
-}
-
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="flex flex-col gap-1">
-      <Label className="text-xs text-muted-foreground">{label}</Label>
-      {children}
-    </div>
+    <ShapeInspector
+      element={element}
+      baseElement={baseElement}
+      environment={project.environment}
+      writeProperty={writeProperty}
+      toggleTrack={toggleTrack}
+      setNumber={setNumber}
+      updateElement={updateElement}
+      setElementMeta={setElementMeta}
+    />
   )
 }
 
