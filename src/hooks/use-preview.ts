@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { sceneStore } from '@/engine'
+import { playbackStore, sceneStore } from '@/engine'
 import { createPlaybackLoop } from '@/routing'
 
 function isPreviewAvailable(): boolean {
@@ -24,6 +24,7 @@ function usePreview() {
     await api.start({ host: '127.0.0.1', port: 6455 })
     const loop = createPlaybackLoop({
       getProject: () => sceneStore.getProject(),
+      getCurrentTime: () => playbackStore.getCurrentTime(),
       sendFrame: (frame) => {
         void api.sendFrame(frame)
       },

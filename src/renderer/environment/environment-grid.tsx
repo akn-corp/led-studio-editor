@@ -1,24 +1,34 @@
 import { useEffect, useMemo, useRef } from 'react'
 import { Layer, Rect, Shape } from 'react-konva'
-import { composeColorGrid } from '@/engine'
+import { composeColorGrid, resolveSceneAtTime } from '@/engine'
 import { SELECTION_COLOR } from '@/renderer/environment/constants'
 import { computeCellSize } from '@/renderer/environment/cell-size'
 import { getDisplayModeRenderer } from '@/renderer/environment/display-mode-renderers'
+import { getVideoElement } from '@/renderer/video/video-playback-store'
 import { clamp } from '@/lib/utils'
 import { useDisplayMode } from '@/state/use-display-mode'
+import { usePlayback } from '@/state/use-playback'
 import { useScene } from '@/state/use-scene'
 import { useViewport } from '@/state/use-viewport'
 
 function EnvironmentGrid({ isSelected }: { isSelected?: boolean }) {
   const { environment, project } = useScene()
   const { mode } = useDisplayMode()
+  const { currentTime } = usePlayback()
   const { rows, columns } = environment
   const { scale, size, setContentSize, setPosition } = useViewport()
 
   const hasCentered = useRef(false)
 
   const cellSize = computeCellSize(rows, columns, size)
-  const colorGrid = useMemo(() => composeColorGrid(project), [project])
+  const colorGrid = useMemo(
+    () =>
+      composeColorGrid(
+        { ...project, elements: resolveSceneAtTime(project, currentTime) },
+        { getVideoElement },
+      ),
+    [project, currentTime],
+  )
   const ledRadius = clamp(cellSize * 0.1, 1, 4)
   const gridWidth = columns * cellSize
   const gridHeight = rows * cellSize

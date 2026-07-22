@@ -58,6 +58,13 @@ function TextNode({
         onChange(commitTextTransformFromNode(e.target, cellSize, transformBaseRef.current))
       }}
       sceneFunc={(context, shape) => {
+        if (element.backgroundColor) {
+          context.save()
+          context.globalAlpha = AUTHORING_GHOST_OPACITY * (element.opacity ?? 1)
+          context.fillStyle = element.backgroundColor
+          context.fillRect(0, 0, element.width * cellSize, element.height * cellSize)
+          context.restore()
+        }
         paintBitmapTextToContext(
           context,
           element.text,

@@ -8,6 +8,7 @@ export interface StateFrame {
 
 export interface PlaybackLoopOptions {
   getProject: () => Project
+  getCurrentTime: () => number
   sendFrame: (frame: StateFrame) => void | Promise<void>
   hz?: number
 }
@@ -18,7 +19,7 @@ export function createPlaybackLoop(options: PlaybackLoopOptions) {
   let frameId = 0
 
   async function tick() {
-    const entries = rasterizeWallFrame(options.getProject())
+    const entries = rasterizeWallFrame(options.getProject(), options.getCurrentTime())
     await options.sendFrame({ frameId, entries })
     frameId = (frameId + 1) % 65536
   }

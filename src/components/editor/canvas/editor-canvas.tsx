@@ -26,7 +26,10 @@ function EditorCanvas() {
   return (
     <div
       ref={ref}
-      className={cn('absolute inset-0 overflow-hidden', isDropTarget ? 'bg-muted' : 'bg-muted/30')}
+      className={cn(
+        'absolute inset-0 overflow-hidden pointer-events-auto',
+        isDropTarget ? 'bg-muted' : 'bg-muted/30',
+      )}
     >
       <CanvasStage onBackgroundClick={handleBackgroundClick}>
         {environment.isSetted && <EnvironmentGrid isSelected={isEnvironmentPanelOpen} />}

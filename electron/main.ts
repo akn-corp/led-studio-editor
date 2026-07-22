@@ -1,8 +1,27 @@
-import { app, BrowserWindow } from 'electron'
+import { app, BrowserWindow, net, protocol } from 'electron'
 import path from 'node:path'
+import { pathToFileURL } from 'node:url'
 import { setupPreviewIpc, teardownPreviewIpc } from './preview-ipc.js'
 
 const VITE_DEV_SERVER_URL = process.env.VITE_DEV_SERVER_URL
+
+// Renderer runs on http://localhost in dev (and effectively a distinct
+// origin even when packaged), so `fetch`/`<audio src>` against raw
+// `file://<path>` URLs are blocked by Chromium as cross-origin. Route local
+// media (e.g. the attached audio reference track) through a privileged
+// custom scheme instead — must be registered before `app.whenReady()`.
+protocol.registerSchemesAsPrivileged([
+  {
+    scheme: 'local-file',
+    privileges: {
+      standard: true,
+      secure: true,
+      supportFetchAPI: true,
+      stream: true,
+      corsEnabled: true,
+    },
+  },
+])
 
 let win: BrowserWindow | null = null
 
@@ -47,6 +66,10 @@ app.on('activate', () => {
 })
 
 app.whenReady().then(() => {
+  protocol.handle('local-file', (request) => {
+    const filePath = decodeURIComponent(new URL(request.url).pathname)
+    return net.fetch(pathToFileURL(filePath).href, { headers: request.headers })
+  })
   setupPreviewIpc()
   createWindow()
 })

@@ -27,6 +27,45 @@ export function gridTransformFromNode(
   }
 }
 
+// Shape nodes are positioned/rotated around their own center (see
+// shape-node.tsx's offsetX/offsetY), unlike every other element which
+// pivots around its top-left corner — so node.x()/y() here reports the
+// element's center in pixel space, not its top-left. These mirror
+// gridPositionFromNode/commitTransformFromNode but subtract the
+// half-extent back out to recover the top-left grid position ElementChanges
+// expects.
+export function gridPositionFromCenteredNode(
+  node: Konva.Node,
+  cellSize: number,
+  width: number,
+  height: number,
+): Pick<ElementChanges, 'x' | 'y'> {
+  return {
+    x: roundTo(node.x() / cellSize - width / 2),
+    y: roundTo(node.y() / cellSize - height / 2),
+  }
+}
+
+export function commitCenteredTransformFromNode(
+  node: Konva.Node,
+  cellSize: number,
+  base: { width: number; height: number },
+): ElementChanges {
+  const scaleX = node.scaleX()
+  const scaleY = node.scaleY()
+  const width = roundTo(base.width * scaleX)
+  const height = roundTo(base.height * scaleY)
+  const changes: ElementChanges = {
+    ...gridPositionFromCenteredNode(node, cellSize, width, height),
+    width,
+    height,
+    rotation: roundTo(node.rotation()),
+  }
+  node.scaleX(1)
+  node.scaleY(1)
+  return changes
+}
+
 export function commitTransformFromNode(
   node: Konva.Node,
   cellSize: number,
